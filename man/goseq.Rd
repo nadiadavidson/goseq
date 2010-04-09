@@ -1,0 +1,98 @@
+\name{goseq}
+\Rdversion{1.1}
+\alias{goseq}
+%- Also NEED an '\alias' for EACH other topic documented here.
+\title{
+goseq Gene Ontology analyser
+}
+\description{
+Does selection-unbiased testing for category enrichment amongst differentially expressed (DE) genes for RNA-seq data.  By default, tests gene ontology (GO) categories, but any categories may be tested.
+}
+\usage{
+goseq(DEgenes, pwf, genome, id, gene2cat = NULL,  
+	test.cats=c("GO:CC", "GO:BP", "GO:MF"), 
+	method = "Wallenius", repcnt = 2000)
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+  \item{DEgenes}{
+A named binary vector where 1 represents DE, 0 not DE and the names are gene IDs.
+}
+  \item{pwf}{
+A vector of the same length as \code{DEgenes} containing the weighting to be applied to each gene in \code{DEgenes}.  Usually produced by \code{\link{nullp}}.
+}
+  \item{genome}{
+A string identifying the genome that \code{genes} refer to.  For a list of supported organisms run \code{\link{supportedGenomes}}.
+}
+  \item{id}{
+A string identifying the gene identifier used by \code{genes}.  For a list of supported gene IDs run \code{\link{supportedGeneIDs}}.
+}
+  \item{gene2cat}{
+A data frame with two columns containing the mapping between genes and the categories of interest.  Alternatively, a list where the names are genes and each entry is a vector containing GO categories associated with that gene (this is the output produced by \code{\link{getgo}}).  If set to \code{NULL} goseq attempts to fetch GO categories automatically using \code{\link{getgo}}. 
+}
+  \item{test.cats}{
+A vector specifying which categories to test for over representation amongst DE genes.  See details for vaild options.
+}
+  \item{method}{
+The method to use to calculate the unbiased category enrichment scores.  Valid options are "Wallenius", "Sampling" & "Hypergeometric".  "Hypergeometric" should almost never be used (see details).
+}
+  \item{repcnt}{
+Number of random samples to be calculated when random sampling is used.  Ignored unless \code{method="Sampling"}.
+}
+}
+\details{
+\code{goseq} obtains length data from UCSC and GO mappings from the organim packages (see \code{link{getgo}} and \code{\link{getlength}} for details).  If your data is in an unsupported format you will need to obtain the GO category mapping and supply them to the \code{goseq} function using the \code{gene2cat} arguement. 
+
+To use your own gene to category mapping with \code{goseq}, use the \code{gene2cat} arguement.  This arguement takes a data.frame, with one column containing gene IDs and the other containing the associated categories.  As the mapping from gene <-> category is in general many to many there will be multiple rows containing the same gene identifier.  Alternatively, \code{gene2cat} can take a list, where the names are the genes and the entries are the GO categories associated with the genes.  This is the format produced by the \code{\link{getgo}} function and is more space efficient than the data.frame representation.
+
+If \code{gene2cat} is left as \code{NULL}, \code{goseq} attempts to use \code{\link{getgo}} to fetch GO catgeory to gene identifier mappings.
+
+The \code{genome} and \code{id} arguements are only required for fetching go category mappings.  If you are providing your own, these arguements are not required and will be ignored if specified.
+
+The PWF is usually calculated using the \code{\link{nullp}} function to correct for length bias. However, \code{goseq} will work with any vector of weights.  Any bias can be accounted for so long as a weight for each gene is supplied using this arguement.  \code{NA}s are allowed in \code{pwf} (these usually occur as a result of missing length data for some genes).  Any entry which is \code{NA} is set to the weighting of the median gene.
+
+Valid options for the \code{test.cats} arguement are any combination of "GO:CC", "GO:BP", "GO:MF" & "KEGG".  The three GO terms refer to the Cellular Component, Biological Process and Molecular Function respectively.  "KEGG" refers to KEGG pathways.
+
+The three methods, "Wallenius", "Sampling" & "Hypergeometric", calculate the p-values as follows.  
+
+"Wallenius" approximates the true distribution of numbers of members of a category amongst DE genes by the Wallenius non-central hypergeometric distribution.  This distribution assumes that within a category all genes have the same probability of being chosen.  Therefore, this approximation works best when the range in probabilities obtained by the probability weighting function is small.  
+
+"Sampling" uses random sampling to approximate the true distribution and uses it to calculate the p-values for over (and under) representation of categories.  Although this is the most accurate method given a high enough value of \code{repcnt}, its use quickly becomes computationally prohibitive.
+
+CAUTION:  "Hypergeometric" should NEVER be used for producing results for biological interpretation.  If there is genuinly no bias in power to detect DE in your experiment, the PWF will reflect this and the other methods will produce accuracte results.
+
+"Hypergeometric" assumes there is no bias in power to detect differential expression at all and calculates the p-values using a standard hypergeometric distribution.  Useful if you wish to test the effect of selection bias on your results.
+}
+\value{
+goseq returns a data frame with 3 columns.  The first column gives the name of the category, the second gives the p-value for the associated category being over represented amongst DE genes.  The third and final column gives the p-value for the associated category being under represented amongst DE genes.  The p-values have not been corrected for multiple hypothesis testing.
+}
+\references{
+  Young, M. D., Wakefield, M. J., Smyth, G. K., Oshlack, A. (2010) \emph{Gene ontology analysis for RNA-seq: accounting for selection bias}
+  Genome Biology
+  Date: Feb 2010
+  Vol: 11
+  Issue: 2
+  Pages: R14
+}
+\author{
+Matthew D. Young \email{myoung@wehi.edu.au}
+}
+%\note{
+%%  ~~further notes~~
+%}
+
+%% ~Make other sections like Warning with \section{Warning }{....} ~
+
+\seealso{
+\code{\link{nullp}}, \code{\link{getgo}}, \code{\link{getlength}}
+}
+\examples{
+data(prostate)
+pwf <- nullp(genes,'hg19','ensGene')
+pvals <- goseq(genes,pwf,'hg19','ensGene')
+head(pvals)
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory.
+%\keyword{ ~kwd1 }
+%\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
