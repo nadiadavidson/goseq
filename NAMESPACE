@@ -1,6 +1,6 @@
 #  All functions exported other than those starting with "."
 #exportPattern("^[^\\.]")
-#All functions that don't begin with p or r (pp reversemapping), not perfect, but good enough
+#All functions that don't begin with p or r or . (pp reversemapping), not perfect, but good enough
 exportPattern("^[^p,r,\\.]")
 importFrom(mgcv,gam,smoothCon,s,mono.con,pcls,Predict.matrix)
 importFrom(graphics, lines, plot)

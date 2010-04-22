@@ -2,28 +2,25 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 	if(any(!fetch.cats%in%c("GO:CC","GO:BP","GO:MF","KEGG"))){
 		stop("Invaled category specified.  Categories can only be GO:CC, GO:BP, GO:MF or KEGG")
 	}
-	#Load the required library
-	tmp=supportedGenomes()
-	orgname=tmp[match(genome,tmp[,1]),2]
-	orgstring=as.character(.ORG_PACKAGES[match(orgname,names(.ORG_PACKAGES))])
-	if(is.na(orgstring)){
+	#Convert from genome ID to org.__.__.db format
+	orgstring=as.character(.ORG_PACKAGES[grep(gsub("[0-9]+",'',genome),names(.ORG_PACKAGES),ignore.case=TRUE)])
+	#Multimatch or no match
+	if(length(orgstring)!=1){
 		stop("Couldn't grab GO categories automatically.  Please manually specify.")
 	}
 	library(paste(orgstring,"db",sep='.'),character.only=TRUE)
 	coreid=strsplit(orgstring,"\\.")[[1]][3]
 
 	#Now we need to convert it into the currently used ID type
-	tmp=supportedGeneIDs()
-	idname=tmp$GeneID[match(id,tmp$db)]
-	#Special case for gene Symbol
-	if(id=="geneSymbol"){idname=="Gene Symbol"}
-	if(is.na(idname)){
+	idname=as.character(.ID_MAP[grep(id,names(.ID_MAP),ignore.case=TRUE)])
+	#Multimatch or no match
+	if(length(idname)!=1){
 		stop("Couldn't grab GO categories automatically.  Please manually specify.")
 	}
 
 	#Most of the core IDs are eg, for now assume that is the case
 	#This really needs to be re-written.  We want two IDs, coreid and sourceid and then have two routines.  One for when coreid==sourceid and another for coreid!=sourceid
-	if(idname=="Entrez gene ID"){
+	if(idname=="Entrez Gene ID"){
 		if(coreid=="eg"){
 			go=list()
 			if(length(grep("^GO",fetch.cats))!=0){
