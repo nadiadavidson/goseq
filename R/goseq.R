@@ -47,7 +47,7 @@ goseq=function(DEgenes,pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","
 		#The user is asked to input categories in the flat data.frame format, so need to convert to list
 		message("Using manually entered categories.")
 		#Is it a flat mapping?
-		if(!is.list(gene2cat)){
+		if(class(gene2cat)!="list"){
 			#Work out which column contains the genes
 			genecol=as.numeric(apply(gene2cat,2,function(u){sum(u%in%names(DEgenes))}))
 			genecol=which(genecol!=0)
@@ -66,6 +66,10 @@ goseq=function(DEgenes,pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","
 			#Do the appropriate builds
 			cat2gene=reversemapping(gene2cat)
 			gene2cat=reversemapping(cat2gene)
+		}
+		#Is the variable specified actually cat2gene?  If so convert it.
+		if(sum(unique(unlist(gene2cat,use.names=FALSE))%in%names(DEgenes))>sum(unique(names(gene2cat))%in%names(DEgenes))){
+			gene2cat=reversemapping(gene2cat)
 		}
 		#Alright, we're garunteed a list now
 		#Now we have to throw out any genes which aren't in req
