@@ -33,8 +33,12 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 			}
 			if(length(grep("^KEGG",fetch.cats))!=0){
 				x=as.list(get(paste(orgstring,"PATH",sep='')))
-				curr.go=unlist(go,use.names=FALSE)
-				names(curr.go)=rep(names(go),times=as.numeric(summary(go)[,1]))
+				if(length(go)==0){
+					curr.go=NULL
+				}else{
+					curr.go=unlist(go,use.names=FALSE)
+					names(curr.go)=rep(names(go),times=as.numeric(summary(go)[,1]))
+				}
 				new.go=unlist(x,use.names=FALSE)
 				names(new.go)=rep(names(x),times=as.numeric(summary(x)[,1]))
 				tot=c(new.go,curr.go)
@@ -58,8 +62,12 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 			}
 			if(length(grep("^KEGG",fetch.cats))!=0){
 				x=as.list(get(paste(orgstring,"PATH",sep='')))
-				curr.go=unlist(eg2go,use.names=FALSE)
-				names(curr.go)=rep(names(eg2go),times=as.numeric(summary(eg2go)[,1]))
+				if(length(go)==0){
+					curr.go=NULL
+				}else{
+					curr.go=unlist(go,use.names=FALSE)
+					names(curr.go)=rep(names(go),times=as.numeric(summary(go)[,1]))
+				}
 				new.go=unlist(x,use.names=FALSE)
 				names(new.go)=rep(names(x),times=as.numeric(summary(x)[,1]))
 				tot=c(new.go,curr.go)
@@ -102,8 +110,12 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 			}
 			if(length(grep("^KEGG",fetch.cats))!=0){
 				x=as.list(get(paste(orgstring,"PATH",sep='')))
-				curr.go=unlist(eg2go,use.names=FALSE)
-				names(curr.go)=rep(names(eg2go),times=as.numeric(summary(eg2go)[,1]))
+				if(length(go)==0){
+					curr.go=NULL
+				}else{
+					curr.go=unlist(go,use.names=FALSE)
+					names(curr.go)=rep(names(go),times=as.numeric(summary(go)[,1]))
+				}
 				new.go=unlist(x,use.names=FALSE)
 				names(new.go)=rep(names(x),times=as.numeric(summary(x)[,1]))
 				tot=c(new.go,curr.go)
