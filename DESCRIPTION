@@ -1,6 +1,6 @@
 Package: goseq
-Version: 1.1.2
-Date: 2010/05/25
+Version: 1.1.3
+Date: 2010/06/03
 Title: Gene Ontology analyser for RNA-seq and other length biased data
 Author: Matthew Young
 Maintainer: Matthew Young <myoung@wehi.edu.au>

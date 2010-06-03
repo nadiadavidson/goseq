@@ -33,7 +33,7 @@ This uses the \code{pcls} function from the \pkg{mgcv} package to produce the fi
 Returns a vector of values containing the value of the fit at each point \code{newX}.
 }
 \references{
-Package \pkg{mgcv}.
+Package \pkg{mgcv}.  In particular this function is a modification of an example given in the man page for \code{pcls}.
 }
 \author{
 Matthew D. Young \email{myoung@wehi.edu.au}.
