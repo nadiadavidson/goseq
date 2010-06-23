@@ -146,8 +146,8 @@ topTags(tested)
 Format the DE genes into a vector suitable for \texttt{goseq}
 
 <<edger_3>>=
-genes=as.integer(p.adjust(tested$table$p.value,method="BH")<.05)
-names(genes)=row.names(tested$table)
+genes=as.integer(p.adjust(tested$table$p.value[!summarized$allZeros],method="BH")<.05)
+names(genes)=row.names(tested$table[!summarized$allZeros,])
 table(genes)
 @
 
@@ -338,7 +338,7 @@ Correcting for count bias will produce a different PWF.  Therefore, we need to t
 So, in order to tell \texttt{goseq} to correct for read count bias instead of length bias, all you need to do is supply a numeric vector, containing the number of counts for each gene to \texttt{nullp}.
 
 <<countbias>>=
-countbias=read.table(system.file("extdata","gene_counts.txt",package="goseq"),stringsAsFactors=FALSE)[,1]
+countbias=rowSums(counts)[rowSums(counts)!=0]
 length(countbias)
 length(genes)
 @
