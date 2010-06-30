@@ -83,9 +83,9 @@ goseq=function(DEgenes,pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","
 	w=!is.na(pwf)
 	common=pwf[w][order(pwf[w])][floor(length(pwf[w])/2)]
 	nafrac=(sum(is.na(pwf))/length(pwf))*100
-	if(nafrac>25){
-		warning(paste("Missing length data for ",round(nafrac),"% of genes.  Accuarcy of GO test will be reduced.",sep=''))
-	}
+	#if(nafrac>25){
+	#	warning(paste("Missing length data for ",round(nafrac),"% of genes.  Accuarcy of GO test will be reduced.",sep=''))
+	#}
 	pwf[is.na(pwf)]=common
 
 	#Now do the calculation of p-values

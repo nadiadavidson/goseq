@@ -146,8 +146,8 @@ topTags(tested)
 Format the DE genes into a vector suitable for \texttt{goseq}
 
 <<edger_3>>=
-genes=as.integer(p.adjust(tested$table$p.value[!summarized$allZeros],method="BH")<.05)
-names(genes)=row.names(tested$table[!summarized$allZeros,])
+genes=as.integer(p.adjust(tested$table$p.value[tested$table$logFC!=0],method="BH")<.05)
+names(genes)=row.names(tested$table[tested$table$logFC!=0,])
 table(genes)
 @
 
