@@ -9,17 +9,14 @@ goseq Gene Ontology analyser
 Does selection-unbiased testing for category enrichment amongst differentially expressed (DE) genes for RNA-seq data.  By default, tests gene ontology (GO) categories, but any categories may be tested.
 }
 \usage{
-goseq(DEgenes, pwf, genome, id, gene2cat = NULL,  
+goseq(pwf, genome, id, gene2cat = NULL,  
 	test.cats=c("GO:CC", "GO:BP", "GO:MF"), 
 	method = "Wallenius", repcnt = 2000)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{DEgenes}{
-A named binary vector where 1 represents DE, 0 not DE and the names are gene IDs.
-}
   \item{pwf}{
-A vector of the same length as \code{DEgenes} containing the weighting to be applied to each gene in \code{DEgenes}.  Usually produced by \code{\link{nullp}}.
+A data frame with at least two columns, named "DEgenes" and "pwf", containing 1s and 0s representing whether a gene is DE or not and the weights to apply to each gene when calculating the null distribution, respctively.  Usually produced by \code{\link{nullp}}.  NAs are allowed in the pwf column.
 }
   \item{genome}{
 A string identifying the genome that \code{genes} refer to.  For a list of supported organisms run \code{\link{supportedGenomes}}.
@@ -89,7 +86,7 @@ Matthew D. Young \email{myoung@wehi.edu.au}
 \examples{
 data(prostate)
 pwf <- nullp(genes,'hg19','ensGene')
-pvals <- goseq(genes,pwf,'hg19','ensGene')
+pvals <- goseq(pwf,'hg19','ensGene')
 head(pvals)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

@@ -27,7 +27,7 @@ A string identifying the gene identifier used by \code{genes}.  For a list of su
 A numeric vector containing the data on which the DE may depend.  Usually this is the median transcript length of each gene in bp.  If set to \code{NULL} \code{nullp} will attempt to fetch length using \code{\link{getlength}}.
 }
   \item{plot.fit}{
-Plot the PWF or not?
+Plot the PWF or not?  Calls \code{\link{plotPWF}} with default values if \code{TRUE}.
 }
 }
 \details{
@@ -40,7 +40,7 @@ If \code{bias.data} is left as \code{NULL}, \code{nullp} attempts to use \code{\
 It is recommended you review the fit produced by the \code{nullp} function before proceeding by leaving \code{plot.fit} as \code{TRUE}.
 }
 \value{
-A numeric vector containing the value on the probability weighting function for each gene.  This is usually passed to the function \code{goseq} via the \code{pwf} arguement.
+A data frame with 3 columns, named "DEgenes", "bias.data" and "pwf" with the rownames set to the gene names.  Each row corresponds to a gene with the DEgenes column specifying if the gene is DE (1 for DE, 0 for not DE), the bias.data column giving the numeric value of the DE bias being accounted for (usually the gene length or number of counts) and the pwf column giving the genes value on the probability weighting function.  This is usually passed to \code{goseq} to calculate enriched categories or \code{plotPWF} for further plotting.
 }
 \references{
   Young, M. D., Wakefield, M. J., Smyth, G. K., Oshlack, A. (2010) \emph{Gene ontology analysis for RNA-seq: accounting for selection bias}

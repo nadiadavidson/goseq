@@ -1,5 +1,9 @@
-goseq=function(DEgenes,pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),method="Wallenius",repcnt=2000){
+goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),method="Wallenius",repcnt=2000){
 	#Gene Ontology testing
+	#Extract vectors from the pwf data frame to be consistent with old convention.  This isn't the best way to do things, but better than rewriting everything.
+	DEgenes=pwf$DEgenes
+	names(DEgenes)=rownames(pwf)
+	pwf=pwf$pwf
 	#Do some validation of input variables
 	if(any(!test.cats%in%c("GO:CC","GO:BP","GO:MF","KEGG"))){
 		stop("Invaled category specified.  Categories can only be GO:CC, GO:BP, GO:MF or KEGG")
@@ -83,9 +87,9 @@ goseq=function(DEgenes,pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","
 	w=!is.na(pwf)
 	common=pwf[w][order(pwf[w])][floor(length(pwf[w])/2)]
 	nafrac=(sum(is.na(pwf))/length(pwf))*100
-	#if(nafrac>25){
-	#	warning(paste("Missing length data for ",round(nafrac),"% of genes.  Accuarcy of GO test will be reduced.",sep=''))
-	#}
+	if(nafrac>50){
+		warning(paste("Missing length data for ",round(nafrac),"% of genes.  Accuarcy of GO test will be reduced.",sep=''))
+	}
 	pwf[is.na(pwf)]=common
 
 	#Now do the calculation of p-values
