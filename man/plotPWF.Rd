@@ -47,7 +47,7 @@ Matthew D. Young \email{myoung@wehi.edu.au}
 \code{\link{nullp}}
 }
 \examples{
-data(prostate)
+data(genes)
 pwf <- nullp(genes, 'hg19', 'ensGene',plot.fit=FALSE)
 plotPWF(pwf,binsize=200)
 }

@@ -1,13 +1,13 @@
-\name{prostate}
+\name{genes}
 \docType{data}
-\alias{prostate}
+\alias{genes}
 \title{Androgen stimulation of prostate cancer Cell lines.}
 \description{
   This data set gives the RNA-seq data from an experiment measuring the effects of androgen stimulation on prostate cancer.  
   Information is given about all (ENSEMBL) genes for which there was at least one mapping read in either the treated or untreated RNA-seq experiment.
   The \code{edgeR} package was used to determine which genes were differentially expressed.  The details of the analysis can be found in the \code{goseq} vignette.
 }
-\usage{data(prostate)}
+\usage{data(genes)}
 \format{
 A named vector of ENSEMBL genes, with 1 representing differential expression.
 }
@@ -22,6 +22,6 @@ A named vector of ENSEMBL genes, with 1 representing differential expression.
 }
 \keyword{datasets}
 \examples{
-data(prostate)
+data(genes)
 head(genes)
 }

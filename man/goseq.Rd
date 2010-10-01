@@ -84,7 +84,7 @@ Matthew D. Young \email{myoung@wehi.edu.au}
 \code{\link{nullp}}, \code{\link{getgo}}, \code{\link{getlength}}
 }
 \examples{
-data(prostate)
+data(genes)
 pwf <- nullp(genes,'hg19','ensGene')
 pvals <- goseq(pwf,'hg19','ensGene')
 head(pvals)

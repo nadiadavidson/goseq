@@ -63,7 +63,7 @@ Matthew D. Young \email{myoung@wehi.edu.au}
 \code{\link{supportedGenomes}}, \code{\link{supportedGeneIDs}}, \code{\link{goseq}}, \code{\link{getlength}}
 }
 \examples{
-data(prostate)
+data(genes)
 pwf <- nullp(genes, 'hg19', 'ensGene')
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
