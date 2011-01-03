@@ -27,7 +27,7 @@ Gordon K.\ Smyth
 Alicia Oshlack}
 % Please increment date when working on this document, so that
 % date shows genuine change date, not merely date of compile.
-\date{12 August 2010}
+\date{24 December 2010}
 \maketitle
 
 \section{Introduction}
@@ -51,7 +51,7 @@ In order to perform a GO analysis of your RNA-seq data, \texttt{goseq} only requ
 
 If the organism, gene identifier or category test is currently not natively supported by \texttt{goseq}, it will also be necessary to supply additional information regarding the genes length and/or the association between categories and genes.
 \np
-At the time of writing, packages for producing counts summarized by gene from raw RNA-seq data are still in development.  However, several packages exist for performing differential expression analysis on summarized data (eg. \texttt{edgeR}~\citep{Robinson07, Robinson08, Robinson10}).  \texttt{goseq} will work with any method for determining differential expression and as such differential expression analysis is outside the scope of this document, but in order to facilitate ease of use, we will make use of the \texttt{edgeR} package to calculate differentially expressed (DE) genes in all the case studies in this document.
+A combination of bioconductor R packages such as \texttt{GenomicFeatures} and \texttt{Rsamtools} allow for the summarization of mapped reads into a table of counts, such as reads per gene.  From there, several packages exist for performing differential expression analysis on summarized data (eg. \texttt{edgeR}~\citep{Robinson07, Robinson08, Robinson10}).  \texttt{goseq} will work with any method for determining differential expression and as such differential expression analysis is outside the scope of this document, but in order to facilitate ease of use, we will make use of the \texttt{edgeR} package to calculate differentially expressed (DE) genes in all the case studies in this document.
 
 \section{Reading data}
 
@@ -66,7 +66,7 @@ It may be that the user can already read in a vector in this format, in which ca
 
 \section{GO testing of RNA-seq data}
 
-To begin the analysis, \texttt{goseq} first needs to quantify the length bias present in the dataset under consideration.  This is done by calculating a Probability Weighting Function or PWF which can be thought of as a function which gives the probability that a gene will be DE, based on its length alone.  The PWF is calculated by fitting a monotonic spline to the binary data series of differential expression (1=DE, 0=Not DE) as a function of gene length.  The PWF is used to weight the chance of selecting each gene when forming a null distribution for GO category membership.  The fact that the PWF is calculated directly from the dataset under consideration makes this approach robust, only correcting for the length bias present.  For example, if \texttt{goseq} is run on a microarray dataset, for which no length bias exists, the calculated PWF will be nearly flat and all genes will be weighted equally, resulting in no length bias correction.
+To begin the analysis, \texttt{goseq} first needs to quantify the length bias present in the dataset under consideration.  This is done by calculating a Probability Weighting Function or PWF which can be thought of as a function which gives the probability that a gene will be differentially expressed (DE), based on its length alone.  The PWF is calculated by fitting a monotonic spline to the binary data series of differential expression (1=DE, 0=Not DE) as a function of gene length.  The PWF is used to weight the chance of selecting each gene when forming a null distribution for GO category membership.  The fact that the PWF is calculated directly from the dataset under consideration makes this approach robust, only correcting for the length bias present in the data.  For example, if \texttt{goseq} is run on a microarray dataset, for which no length bias exists, the calculated PWF will be nearly flat and all genes will be weighted equally, resulting in no length bias correction.
 \np
 In order to account for the length bias inherent to RNA-seq data when performing a GO analysis (or other category based tests), one cannot simply use the hypergeometric distribution as the null distribution for category membership, which is appropriate for data without DE length bias, such as microarray data.  GO analysis of RNA-seq data requires the use of random sampling in order to generate a suitable null distribution for GO category membership and calculate each categories significance for over representation amongst DE genes.
 \np
@@ -86,7 +86,7 @@ supportedGeneIDs()
 @
 The rightmost column in the output of both these commands lists the identifiers (in the case of supportedGenomes) or genomes (in the case of supportedGeneIDs) for which length data exists in the local database.  If your genome/ID combination is not in the local database, it will be downloaded from the UCSC genome browser.  If your genome/ID combination is not in the UCSC database, you will have to manually specify the gene lengths.
 \np
-In order to link GO categories to genes, \texttt{goseq} uses the organism packages from Bioconductor.  These packages are named org.<Genome>.<ID>.db, where <Genome> is a short string identifying the genome and <ID> is a short string identifying the gene identifier.  Currently, \texttt{goseq} will automatically retrieve the mapping between GO categories and genes from the relevant package (as long as it is installed) for commonly used genome/ID combinations.  If GO mappings are not automatically available for your genome/ID combination, you will have to manually specify the relationship between genes and categories.
+In order to link GO categories to genes, \texttt{goseq} uses the organism packages from Bioconductor.  These packages are named org.<Genome>.<ID>.db, where <Genome> is a short string identifying the genome and <ID> is a short string identifying the gene identifier.  Currently, \texttt{goseq} will automatically retrieve the mapping between GO categories and genes from the relevant package (as long as it is installed) for commonly used genome/ID combinations.  If GO mappings are not automatically available for your genome/ID combination, you will have to manually specify the relationship between genes and categories.  Although the Genome/ID naming conventions used by the organism packages differ from the UCSC, \texttt{goseq} is able to convert between the two, so the user need only ever specify the UCSC genome/ID in most cases.
 
 \section{Non-native Gene Identifier or category test}
 
@@ -99,7 +99,7 @@ If the organism, Gene Identifier or category test you wish to perform is not in 
 
 \subsection{Length data format}
 
-The length data must be formatted as a numeric vector, of the same length as the main named vector specifying gene names/DE genes.  Each entry should give the length of the corresponding gene in bp.  If length data is unavailable for some genes, that entry should be set to NA.
+The length data must be formatted as a numeric vector, of the same length as the main named vector specifying gene names/DE genes.  Each entry should give the length of the corresponding gene in bp.  If length data is unavailable for some genes, that entry should be set to NA. 
 
 \subsection{Category mapping format}
 
@@ -120,11 +120,11 @@ For each sample we were provided with the raw 35 bp RNA-seq reads from the autho
 
 \subsection{Source of the data}
 
-The data set used in this case study is taken from \citep{Li:2008p113} and was made available from the Authors upon request.  
+The data set used in this case study is taken from \citep{Li:2008p113} and was made available from the authors upon request.  
 
 \subsection{Determining the DE genes using \texttt{edgeR}}
 
-To begin with we load in the text data and convert it the appropriate \texttt{edgeR} DGEList object.
+To begin with, we load in the text data and convert it the appropriate \texttt{edgeR} DGEList object.
 
 <<edger_1>>=
 library(edgeR)
@@ -135,15 +135,16 @@ grp=factor(rep(c("Control","Treated"),times=c(4,3)))
 summarized=DGEList(counts,lib.size=colSums(counts),group=grp)
 @
 
-Now use \texttt{edgeR} to calculate the DE genes.
+Next, we use \texttt{edgeR} to estimate the biological dispersion and calculate differential expression using a negative binomial model.
 
 <<edger_2>>=
 disp=estimateCommonDisp(summarized)
+disp$common.dispersion
 tested=exactTest(disp)
 topTags(tested)
 @
 
-Format the DE genes into a vector suitable for \texttt{goseq}
+Finally, we Format the DE genes into a vector suitable for use with \texttt{goseq}
 
 <<edger_3>>=
 genes=as.integer(p.adjust(tested$table$p.value[tested$table$logFC!=0],method="BH")<.05)
@@ -178,27 +179,29 @@ pwf=nullp(genes,"hg18","ensGene")
 @
 
 \texttt{nullp} plots the resulting fit, allowing verification of the goodness of fit before continuing the analysis.  Further plotting of the pwf can be performed using the \texttt{plotPWF} function.
+\np
+The output of nullp contains all the information supplied to the nullp function as well as the estimated PWF.  This saves us having to re-enter the same information for the next step of the analysis.
 
 
 \subsubsection{Using the Wallenius approximation}
 
-To start with we will use the default method, to calculate the over and under expressed GO categories among DE genes.  Again, we allow \texttt{goseq} to fetch data automatically.
+To start with we will use the default method, to calculate the over and under expressed GO categories among DE genes.  Again, we allow \texttt{goseq} to fetch data automatically, except this time the data being fetched is the relationship between ENSEMBL gene IDs and GO categories.
 
 %This hides the output of goseq
 
 <<GO.wall>>=
-GO.wall=goseq(pwf,"hg18","ensGene")
+GO.wall=goseq(pwf)
 head(GO.wall)
 @
 
-The resulting object is ordered by GO category over representation amongst DE genes.
+The resulting object is ordered by GO category over representation amongst DE genes.  Note that we did not have to re-enter the genome as "hg18" or gene identifier as "ensGene" as this information is retained in the pwf object.
 
 \subsubsection{Using random sampling}
 
 It may sometimes be desirable to use random sampling to generate the null distribution for category membership.  This is easily accomplished by using the \texttt{method} option to specify sampling and the \texttt{repcnt} option to specify the number of samples to generate:
 
 <<GO.samp,results=hide>>=
-GO.samp=goseq(pwf,"hg18","ensGene",method="Sampling",repcnt=1000)
+GO.samp=goseq(pwf,method="Sampling",repcnt=1000)
 @
 <<head_samp>>=
 head(GO.samp)
@@ -218,7 +221,7 @@ abline(0,1,col=3,lty=2)
 However, if you still wish to ignore length bias in calculating GO category enrichment, this is again accomplished using the \texttt{method} option.
 
 <<GO.nobias>>=
-GO.nobias=goseq(pwf,"hg18","ensGene",method="Hypergeometric")
+GO.nobias=goseq(pwf,method="Hypergeometric")
 head(GO.nobias)
 @
 
@@ -234,19 +237,18 @@ abline(0,1,col=3,lty=2)
 By default, \texttt{goseq} tests all three major Gene Ontology branches; Cellular Components, Biological Processes and Molecular Functions.  However, it is possible to limit testing to any combination of the major branches by using the \texttt{test.cats} argument to the goseq function.  This is done by specifying a vector consisting of some combination of the strings ``GO:CC", ``GO:BP" and ``GO:MF".  For example, to test for only Molecular Function GO categories:
 
 <<GO.limited>>=
-GO.MF=goseq(pwf,"hg18","ensGene",test.cats=c("GO:MF"))
+GO.MF=goseq(pwf,test.cats=c("GO:MF"))
 head(GO.MF)
 @
 
 Native support for other category tests, such as KEGG pathway analysis are also made available via this argument.  See the man \texttt{goseq} function man page for up to date information on what category tests are natively supported.
-
 
 \subsubsection{Making sense of the results}
 
 Having performed the GO analysis, you may now wish to interpret the results.  If you wish to identify categories significantly enriched/unenriched below some p-value cutoff, it is necessary to first apply some kind of multiple hypothesis testing correction.  For example, GO categories over enriched using a .05 FDR cutoff \citep{Benjamini95} are:
 
 <<enriched_GO>>=
-enriched.GO=GO.wall$category[p.adjust(GO.wall$upval,method="BH")<.05]
+enriched.GO=GO.wall$category[p.adjust(GO.wall$over_represented_pvalue,method="BH")<.05]
 head(enriched.GO)
 @
 
@@ -271,7 +273,7 @@ length(len)
 length(genes)
 head(len)
 @
-After some data cleanup, the length data and the DE data is then passed to the \texttt{makespline} function to produce the PWF.  Finally, the \texttt{nullp} function returns a data frame with 3 columns, the original DEgenes vector, the length bias data (in a column called bias.data) and the PWF itself (in a column named pwf).  The names of the genes are also kept in this data frame as the names of the rows.
+After some data cleanup, the length data and the DE data is then passed to the \texttt{makespline} function to produce the PWF.  The \texttt{nullp} usually returns a list containing three objects named "pwf", "genome" and "id".  The data frame has 3 columns, the original DEgenes vector, the length bias data (in a column called bias.data) and the PWF itself (in a column named pwf).  The names of the genes are also kept in this data frame as the names of the rows.  The "genome" and "id" entries contain the values provided to the genome and id arguments of the \texttt{nullp} function.  If these entries are not given (as is the case when the user supplies the length data) \texttt{nullp} just returns the data frame described above.
 \np
 Next we call the \texttt{goseq} function to determine over/under representation of GO categories amongst DE genes.  When we do this, \texttt{goseq} looks for the appropriate organism package and tries to obtain the mapping from genes to GO categories from it.  This is done using the \texttt{getgo} function as follows:
 <<getgo>>=
@@ -281,11 +283,18 @@ length(genes)
 head(go)
 @
 
-Note that it is just as valid to run the length and GO category fetching as separate steps and then passed them to the \texttt{nullp} and \texttt{goseq} functions using the \texttt{bias.data} and \texttt{gene2cat} arguments.  Thus the following two blocks of code are equivalent:
+Note that the first thing the getgo function does is to convert the UCSC genome/ID namings into the naming convention used by the organism packages.  This is done using two hard coded conversion vectors that are included in the \texttt{goseq} package but usually hiden from the user.
+
+<<conv_table>>=
+goseq:::.ID_MAP
+goseq:::.ORG_PACKAGES
+@
+
+It is just as valid to run the length and GO category fetching as separate steps and then pass the result to the \texttt{nullp} and \texttt{goseq} functions using the \texttt{bias.data} and \texttt{gene2cat} arguments.  Thus the following two blocks of code are equivalent:
 
 <<norm_analysis,eval=FALSE>>=
 pwf=nullp(genes,"hg18","ensGene")
-go=goseq(pwf,"hg18","ensGene")
+go=goseq(pwf)
 @
 and
 <<verbose_analysis,eval=FALSE>>=
@@ -312,7 +321,7 @@ head(kegg)
 @
 
 Note that this step is quite time consuming.  The code written here is not the most efficient way of producing this result, but the logic is much clearer than faster algorithms.  The source code for getgo contains a more efficient routine.
-
+\np
 We produce the PWF as before.  Then, to perform a KEGG analysis, we simply make use of the \texttt{gene2cat} option in \texttt{goseq}:
 
 <<KEGG,eval=FALSE>>=
@@ -320,6 +329,15 @@ pwf=nullp(genes,"hg18","ensGene")
 KEGG=goseq(pwf,gene2cat=kegg)
 head(KEGG)
 @
+
+This is shown as an illustration of how to supply your own mapping between gene ID and category, KEGG analysis is actually natively supported by GOseq and we could have performed it with the following code.
+
+<<KEGG_goseq>>=
+pwf=nullp(genes,'hg18','ensGene')
+KEGG=goseq(pwf,test.cats="KEGG")
+head(KEGG)
+@
+
 \subsection{Extracting mappings from organism packages}
 
 If you know that the information mapping gene ID to your categories of interest is contained in the organism packages, but \texttt{goseq} fails to fetch it automatically, you may want to extract it yourself and then pass it to the \texttt{goseq} function using the \texttt{gene2cat} argument.  This is done in exactly the same way as extracting the KEGG to ENSEMBL mappings in the section ``KEGG pathway analysis" above.  This example is actually the worst case, where it is necessary to combine two mappings to get the desired list.  If we had instead wanted the association between Entrez gene IDs and KEGG pathways, the following code would have been sufficient:
@@ -343,7 +361,7 @@ length(countbias)
 length(genes)
 @
 
-To use the count bias when doing GO analysis, simply pass this vector to \texttt{nullp} using the \texttt{bias.data} option:
+To use the count bias when doing GO analysis, simply pass this vector to \texttt{nullp} using the \texttt{bias.data} option.  Note that we have to supply "hg18" and "ensGene" to \texttt{goseq} as it is not used by nullp and hence not in the pwf.counts object.
 
 <<GO.counts>>=
 pwf.counts=nullp(genes,bias.data=countbias)

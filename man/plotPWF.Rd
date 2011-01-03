@@ -9,7 +9,7 @@ Plot the Probability Weighting Function
 Plots the Probability Weighting Function created by \code{\link{nullp}} by binning together genes.
 }
 \usage{
-plotPWF(pwf,binsize="auto")
+plotPWF(pwf,binsize="auto",pwf_col=3,pwf_lwd=2,xlab="Biased Data in <binsize> gene bins.",ylab="Proportion DE",...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,6 +18,21 @@ A data frame with 3 columns named DEgenes, bias.data & pwf.  Usually generated b
 }
   \item{binsize}{
 Calculate and plot the fraction of genes that are DE in bins of this size.  If set to "auto" the best binsize for visualization is attempted to be found automatically.
+}
+  \item{pwf_col}{
+The colour of the probability weighting function
+}
+  \item{pwf_lwd}{
+The width of the probability weighting function
+}
+  \item{xlab}{
+The x-axis label. \code{<binsize>} is replaced by the binsize used.
+}
+  \item{ylab}{
+The y-axis label.
+}
+  \item{...}{
+Extra arguments that are passed to plot.
 }
 }
 \details{

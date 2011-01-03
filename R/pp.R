@@ -1,4 +1,9 @@
-#Prints the percentage done of a loop indexed by i out of stop
+#############################################################################
+#Description: Prints progress through a loop
+#Notes:
+#Author: Matthew Young
+#Date Modified: 13/12/2010
+
 pp=function(total,count){
 	if(missing(count)){count=evalq(i,envir=parent.frame())}
 	if(missing(total)){total=evalq(stop,envir=parent.frame())}

@@ -1,39 +1,43 @@
-nullp = function(DEgenes, genome, id, bias.data=NULL, plot.fit=TRUE){
-	#Generates the Null distribution
+#############################################################################
+#Description: Generates the weighting curve that is used to generate the length corrected NULL distribution.
+#A spline is fit to obtain a functional relationship between gene length and likelihood of differential exrpession
+#Notes: By default genome and id are used to fetch length data from GeneLenDataBase, but the length of each gene can be supplied with bias.data
+#Author: Matthew Young
+#Date Modified: 20/12/2010
 
+
+nullp = function(DEgenes, genome, id, bias.data=NULL, plot.fit=TRUE){
 	#Input Checking
 	if(!is.null(bias.data) & length(bias.data)!=length(DEgenes)){
 		stop("bias.data vector must have the same length as DEgenes vector!")
 	}
+	#Factors cause strange things to happen, remove them if they exist
 	bias.data=unfactor(bias.data)
+	DEgenes=unfactor(DEgenes)
 
-
-	#Look it up if necessary
+	#Fetch length data from geneLenDataBase
 	if(is.null(bias.data)){
 		bias.data=getlength(names(DEgenes),genome,id)
 	}
 
-	#Do the fit.
-	#May not have bias data for some of the entries, return NA at the relevant position
+	#Fit a spline to the binary vector of DE calls vs gene length
+	#May not have bias data for some of the entries, return NA at those positions
 	pwf=rep(NA,length(DEgenes))
 	w=!is.na(bias.data)
 	pwf[w]=makespline(bias.data[w],DEgenes[w])
 
-	#Make a suitable object
-	out=data.frame(DEgenes=DEgenes,bias.data=bias.data,pwf=pwf,stringsAsFactors=FALSE)
-	rownames(out)=names(DEgenes)
+	#Make a data frame which contains all the input information (or fetched information) and the resulting fit
+	if(missing(genome))
+		genome=NULL
+	if(missing(id))
+		id=NULL
+	out=list(data=data.frame(DEgenes=DEgenes,bias.data=bias.data,pwf=pwf,stringsAsFactors=FALSE),genome=genome,id=id)
+	rownames(out$data)=names(DEgenes)
 
-	#Plot
+	#Plot the PWF if the arument has been specified
 	if(plot.fit){
 		plotPWF(out)
 	}
-
-	#Warn if we couldn't find length data for at least 80% of genes.  This is also in goseq function, so leave it out
-	#nafrac=(sum(is.na(pwf))/length(pwf))*100
-	#if(nafrac>.25){
-	#	warning(paste("Missing length data for ",round(nafrac*100),"% of genes.  Accuarcy of GO test will be reduced.",sep=''))
-	#}
-
 	out
 }
 

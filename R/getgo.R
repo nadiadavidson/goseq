@@ -1,4 +1,11 @@
+#############################################################################
+#Description: Attempts to fetch the categories specified for the given genes, genome and gene ID format
+#Notes: Relies on the bioconductor organism packages being installed for whatever genome you specify
+#Author: Matthew Young
+#Date Modified: 17/12/2010
+
 getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
+	#Check for valid input
 	if(any(!fetch.cats%in%c("GO:CC","GO:BP","GO:MF","KEGG"))){
 		stop("Invaled category specified.  Categories can only be GO:CC, GO:BP, GO:MF or KEGG")
 	}
@@ -8,152 +15,65 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 	if(length(orgstring)!=1){
 		stop("Couldn't grab GO categories automatically.  Please manually specify.")
 	}
+	#Load the library
 	library(paste(orgstring,"db",sep='.'),character.only=TRUE)
+	#What is the default ID that the organism package uses?
 	coreid=strsplit(orgstring,"\\.")[[1]][3]
 
-	#Now we need to convert it into the currently used ID type
-	idname=as.character(.ID_MAP[grep(id,names(.ID_MAP),ignore.case=TRUE)])
+	#Now we need to convert it into the naming convention used by the organism packages
+	userid=as.character(.ID_MAP[grep(id,names(.ID_MAP),ignore.case=TRUE)])
 	#Multimatch or no match
-	if(length(idname)!=1){
+	if(length(userid)!=1){
 		stop("Couldn't grab GO categories automatically.  Please manually specify.")
 	}
+	#The (now loaded) organism package contains a mapping between the internal ID and whatever the default is (usually eg), the rest of this function is about changing that mapping to point from categories to the ID specified
+	#Fetch the mapping in its current format
+	core2cat=NULL
+	if(length(grep("^GO",fetch.cats))!=0){
+		x=toTable(get(paste(orgstring,"GO",sep='')))
+		#Keep only those ones that we specified and keep only the names
+		core2cat=x[x$Ontology%in%gsub("^GO:",'',fetch.cats),1:2]
+		colnames(core2cat)=c("gene_id","category")
+	}
+	if(length(grep("^KEGG",fetch.cats))!=0){
+		x=toTable(get(paste(orgstring,"PATH",sep='')))
+		#Either add it to existing table or create a new one
+		colnames(x)=c("gene_id","category")
+		if(!is.null(core2cat)){
+			core2cat=rbind(core2cat,x)
+		}else{
+			core2cat=x
+		}
+	}
 
-	#Most of the core IDs are eg, for now assume that is the case
-	#This really needs to be re-written.  We want two IDs, coreid and sourceid and then have two routines.  One for when coreid==sourceid and another for coreid!=sourceid
-	if(idname=="Entrez Gene ID"){
-		if(coreid=="eg"){
-			go=list()
-			if(length(grep("^GO",fetch.cats))!=0){
-				x=as.list(get(paste(orgstring,"GO",sep='')))
-				tmp=unlist(x)
-				goids=tmp[grep("GOID$",names(tmp))]
-				type=tmp[grep("Ontology$",names(tmp))]
-				keep=goids[as.character(type)%in%gsub("^GO:",'',fetch.cats)]
-				go=split(as.character(keep),gsub("\\.GO.*",'',names(keep)))
-			}
-			if(length(grep("^KEGG",fetch.cats))!=0){
-				x=as.list(get(paste(orgstring,"PATH",sep='')))
-				if(length(go)==0){
-					curr.go=NULL
-				}else{
-					curr.go=unlist(go,use.names=FALSE)
-					names(curr.go)=rep(names(go),times=as.numeric(summary(go)[,1]))
-				}
-				new.go=unlist(x,use.names=FALSE)
-				names(new.go)=rep(names(x),times=as.numeric(summary(x)[,1]))
-				tot=c(new.go,curr.go)
-				go=split(as.character(tot),names(tot))
-			}
-		}else{
-			stop("Couldn't grab GO categories automatically.  Please manually specify.")
-		}
-	}else if(idname=="Ensembl gene ID"){
-		if(coreid=="eg"){
-			#Super awesome-o efficient, but not readable
-			en2eg=as.list(get(paste(orgstring,"ENSEMBL2EG",sep='')))
-			eg2go=list()
-			if(length(grep("^GO",fetch.cats))!=0){
-				x=as.list(get(paste(orgstring,"GO",sep='')))
-				tmp=unlist(x)
-				goids=tmp[grep("GOID$",names(tmp))]
-				type=tmp[grep("Ontology$",names(tmp))]
-				keep=goids[as.character(type)%in%gsub("^GO:",'',fetch.cats)]
-				eg2go=split(as.character(keep),gsub("\\.GO.*",'',names(keep)))
-			}
-			if(length(grep("^KEGG",fetch.cats))!=0){
-				x=as.list(get(paste(orgstring,"PATH",sep='')))
-				if(length(go)==0){
-					curr.go=NULL
-				}else{
-					curr.go=unlist(go,use.names=FALSE)
-					names(curr.go)=rep(names(go),times=as.numeric(summary(go)[,1]))
-				}
-				new.go=unlist(x,use.names=FALSE)
-				names(new.go)=rep(names(x),times=as.numeric(summary(x)[,1]))
-				tot=c(new.go,curr.go)
-				eg2go=split(as.character(tot),names(tot))
-			}
-			#eg2go=lapply(as.list(get(paste(orgstring,"GO",sep=''))),names)
-			len_eg2go=as.numeric(summary(eg2go)[,1])
-			len_en2eg=as.numeric(summary(en2eg)[,1])
-			flat_en2eg=unlist(en2eg,use.names=FALSE)
-			names(flat_en2eg)=rep(names(en2eg),times=len_en2eg)
-			w=match(flat_en2eg,names(eg2go))
-			len_eg=len_eg2go[w]
-			len_eg[is.na(len_eg)]=0
-			names(len_eg)=rep(names(en2eg),times=len_en2eg)
-			len_en=split(as.numeric(len_eg),names(len_eg))
-			len_en=sapply(len_en,sum,na.rm=TRUE)
-			flat_eg2go=unlist(eg2go[w],use.names=FALSE)
-			go=split(flat_eg2go,rep(names(len_en),times=as.numeric(len_en)))
-			go=lapply(go,unique)
-			#Obvious but slow way, probably better for the vignette
-			#x=as.list(get(paste(orgstring,"ENSEMBL2EG",sep='')))[genes]
-			#mapkeys=lapply(as.list(get(paste(orgstring,"GO",sep='')))[unlist(x,use.names=FALSE)],names)
-			#grepGO=function(id, mapkeys){unique(unlist(mapkeys[id],use.names=FALSE))}
-			#go=lapply(x,grepGO,mapkeys)
-		}else{
-			stop("Couldn't grab GO categories automatically.  Please manually specify.")
-		}
-	}else if(idname=="Gene Symbol"){
-		if(coreid=="eg"){
-			#Super awesome-o efficient, but not readable
-			en2eg=as.list(get(paste(orgstring,"SYMBOL2EG",sep='')))
-			eg2go=list()
-			if(length(grep("^GO",fetch.cats))!=0){
-				x=as.list(get(paste(orgstring,"GO",sep='')))
-				tmp=unlist(x)
-				goids=tmp[grep("GOID$",names(tmp))]
-				type=tmp[grep("Ontology$",names(tmp))]
-				keep=goids[as.character(type)%in%gsub("^GO:",'',fetch.cats)]
-				eg2go=split(as.character(keep),gsub("\\.GO.*",'',names(keep)))
-			}
-			if(length(grep("^KEGG",fetch.cats))!=0){
-				x=as.list(get(paste(orgstring,"PATH",sep='')))
-				if(length(go)==0){
-					curr.go=NULL
-				}else{
-					curr.go=unlist(go,use.names=FALSE)
-					names(curr.go)=rep(names(go),times=as.numeric(summary(go)[,1]))
-				}
-				new.go=unlist(x,use.names=FALSE)
-				names(new.go)=rep(names(x),times=as.numeric(summary(x)[,1]))
-				tot=c(new.go,curr.go)
-				eg2go=split(as.character(tot),names(tot))
-			}
-			#eg2go=lapply(as.list(get(paste(orgstring,"GO",sep=''))),names)
-			len_eg2go=as.numeric(summary(eg2go)[,1])
-			len_en2eg=as.numeric(summary(en2eg)[,1])
-			flat_en2eg=unlist(en2eg,use.names=FALSE)
-			names(flat_en2eg)=rep(names(en2eg),times=len_en2eg)
-			w=match(flat_en2eg,names(eg2go))
-			len_eg=len_eg2go[w]
-			len_eg[is.na(len_eg)]=0
-			names(len_eg)=rep(names(en2eg),times=len_en2eg)
-			len_en=split(as.numeric(len_eg),names(len_eg))
-			len_en=sapply(len_en,sum,na.rm=TRUE)
-			flat_eg2go=unlist(eg2go[w],use.names=FALSE)
-			go=split(flat_eg2go,rep(names(len_en),times=as.numeric(len_en)))
-			go=lapply(go,unique)
-			#Obvious but slow way, probably better for the vignette
-			#x=as.list(get(paste(orgstring,"ENSEMBL2EG",sep='')))[genes]
-			#mapkeys=lapply(as.list(get(paste(orgstring,"GO",sep='')))[unlist(x,use.names=FALSE)],names)
-			#grepGO=function(id, mapkeys){unique(unlist(mapkeys[id],use.names=FALSE))}
-			#go=lapply(x,grepGO,mapkeys)
+	#Now we MAY have to convert the "gene_id" column to the format we are using
+	if(coreid!=userid){
+		#The mapping between user id and core id, don't use the <USER_ID>2<CORE_ID> object as the naming is not always consistent
+		user2core=toTable(get(paste(orgstring,userid,sep='')))
+		#Throw away any user ID that doesn't appear in core2cat
+		user2core=user2core[user2core[,1]%in%core2cat[,1],]
+		#Make a list version of core2cat, we'll need it
+		list_core2cat=split(core2cat[,2],core2cat[,1])
+		#Now we need to replicate the core IDs that need replicating
+		list_core2cat=list_core2cat[match(user2core[,1],names(list_core2cat))]
+		#Now we can replace the labels on this list with the user ones from user2core, but there will be duplicates, so we have to unlist, label, then relist
+		user2cat=split(unlist(list_core2cat,FALSE,FALSE),rep(user2core[,2],sapply(list_core2cat,length)))
+		#Now we only want each category listed once for each entry...
+		user2cat=sapply(user2cat,unique)
+		###In case you don't believe that this works as it should, here is the slow as all hell way for comparison...
+		###Make first list
+		##list_user2core=split(user2core[,1],user2core[,2])
+		###Make the second
+		##list_core2cat=split(core2cat[,2],core2cat[,1])
+		###Go through each entry in first list and expand using second...
+		##user2cat=sapply(list_user2core,function(u){unique(unlist(list_core2cat[u],FALSE,FALSE))})
 
-		}else{
-			stop("Couldn't grab GO categories automatically.  Please manually specify.")
-		}
-	}else if(idname=="HAVANA Pseudogene ID"){
-		if(coreid=="eg"){
-			stop("Couldn't grab GO categories automatically.  Please manually specify.")
-		}else{
-			stop("Couldn't grab GO categories automatically.  Please manually specify.")
-		}
 	}else{
-		stop("Couldn't grab GO categories automatically.  Please manually specify.")
+		#We don't need to convert anything (WOO!), so just make it into a list
+		user2cat=split(core2cat[,2],core2cat[,1])
+		user2cat=sapply(user2cat,unique)
 	}
+
 	#Now look them up
-	gene2cat=go[genes]
-	return(gene2cat)
+	return(user2cat[genes])
 }

@@ -31,7 +31,7 @@ This function attempts to make use of the organism packages (org.<Genome>.<GeneI
 
 Valid options for the \code{fetch.cats} arguement are any combination of "GO:CC", "GO:BP", "GO:MF" & "KEGG".  The three GO terms refer to the Cellular Component, Biological Process and Molecular Function respectively.  "KEGG" refers to KEGG pathways.
 
-Note that \code{getgo} is a convenience function, designed to make extracting mappings between GO categories and Gene ID.  For less common organisms and/or gene ID \code{getgo} may fail to return a mapping even when a legitimate mapping exists in the revelant organism package.  If \code{getgo} fails, you should always try to build the mapping yourself from the organism package (if one exists) before deciding that the information is unavailable.  Further information and examples of this can be found in the package Vignette.
+Note that \code{getgo} is a convenience function, designed to make extracting mappings between GO categories and Gene ID easy.  For less common organisms and/or gene ID \code{getgo} may fail to return a mapping even when a legitimate mapping exists in the revelant organism package.  If \code{getgo} fails, you should always try to build the mapping yourself from the organism package (if one exists) before deciding that the information is unavailable.  Further information and examples of this can be found in the package Vignette.
 }
 \value{
 A list where each entry is named by a gene and contains a vector of all the associated GO categories.  This can be used directly with the \code{gene2cat} option in \code{\link{goseq}}.
