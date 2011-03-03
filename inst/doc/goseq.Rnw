@@ -27,7 +27,7 @@ Gordon K.\ Smyth
 Alicia Oshlack}
 % Please increment date when working on this document, so that
 % date shows genuine change date, not merely date of compile.
-\date{24 December 2010}
+\date{3 March 2011}
 \maketitle
 
 \section{Introduction}
@@ -60,6 +60,7 @@ We assume that the user can use appropriate in-built \texttt{R} functions (such 
 <<read.data,eval=FALSE>>=
 gene.vector=as.integer(assayed.genes%in%de.genes)
 names(gene.vector)=assayed.genes
+head(gene.vector)
 @
 
 It may be that the user can already read in a vector in this format, in which case it can then be immediately used by \texttt{goseq}.
@@ -176,11 +177,12 @@ We first need to obtain a weighting for each gene, depending on its length, give
 
 <<pwf,fig=TRUE>>=
 pwf=nullp(genes,"hg18","ensGene")
+head(pwf)
 @
 
 \texttt{nullp} plots the resulting fit, allowing verification of the goodness of fit before continuing the analysis.  Further plotting of the pwf can be performed using the \texttt{plotPWF} function.
 \np
-The output of nullp contains all the information supplied to the nullp function as well as the estimated PWF.  This saves us having to re-enter the same information for the next step of the analysis.
+The output of nullp contains all the data used to create the PWF, as well as the PWF itself.   It is a data frame with 3 columns, named "DEgenes", "bias.data" and "pwf" with the rownames set to the gene names.  Each row corresponds to a gene with the DEgenes column specifying if the gene is DE (1 for DE, 0 for not DE), the bias.data column giving the numeric value of the DE bias being accounted for (usually the gene length or number of counts) and the pwf column giving the genes value on the probability weighting function.
 
 
 \subsubsection{Using the Wallenius approximation}
@@ -190,18 +192,18 @@ To start with we will use the default method, to calculate the over and under ex
 %This hides the output of goseq
 
 <<GO.wall>>=
-GO.wall=goseq(pwf)
+GO.wall=goseq(pwf,"hg18","ensGene")
 head(GO.wall)
 @
 
-The resulting object is ordered by GO category over representation amongst DE genes.  Note that we did not have to re-enter the genome as "hg18" or gene identifier as "ensGene" as this information is retained in the pwf object.
+The resulting object is ordered by GO category over representation amongst DE genes.  
 
 \subsubsection{Using random sampling}
 
 It may sometimes be desirable to use random sampling to generate the null distribution for category membership.  This is easily accomplished by using the \texttt{method} option to specify sampling and the \texttt{repcnt} option to specify the number of samples to generate:
 
 <<GO.samp,results=hide>>=
-GO.samp=goseq(pwf,method="Sampling",repcnt=1000)
+GO.samp=goseq(pwf,"hg18","ensGene",method="Sampling",repcnt=1000)
 @
 <<head_samp>>=
 head(GO.samp)
@@ -221,7 +223,7 @@ abline(0,1,col=3,lty=2)
 However, if you still wish to ignore length bias in calculating GO category enrichment, this is again accomplished using the \texttt{method} option.
 
 <<GO.nobias>>=
-GO.nobias=goseq(pwf,method="Hypergeometric")
+GO.nobias=goseq(pwf,"hg18","ensGene",method="Hypergeometric")
 head(GO.nobias)
 @
 
@@ -237,7 +239,7 @@ abline(0,1,col=3,lty=2)
 By default, \texttt{goseq} tests all three major Gene Ontology branches; Cellular Components, Biological Processes and Molecular Functions.  However, it is possible to limit testing to any combination of the major branches by using the \texttt{test.cats} argument to the goseq function.  This is done by specifying a vector consisting of some combination of the strings ``GO:CC", ``GO:BP" and ``GO:MF".  For example, to test for only Molecular Function GO categories:
 
 <<GO.limited>>=
-GO.MF=goseq(pwf,test.cats=c("GO:MF"))
+GO.MF=goseq(pwf,"hg18","ensGene",test.cats=c("GO:MF"))
 head(GO.MF)
 @
 
@@ -273,7 +275,7 @@ length(len)
 length(genes)
 head(len)
 @
-After some data cleanup, the length data and the DE data is then passed to the \texttt{makespline} function to produce the PWF.  The \texttt{nullp} usually returns a list containing three objects named "pwf", "genome" and "id".  The data frame has 3 columns, the original DEgenes vector, the length bias data (in a column called bias.data) and the PWF itself (in a column named pwf).  The names of the genes are also kept in this data frame as the names of the rows.  The "genome" and "id" entries contain the values provided to the genome and id arguments of the \texttt{nullp} function.  If these entries are not given (as is the case when the user supplies the length data) \texttt{nullp} just returns the data frame described above.
+After some data cleanup, the length data and the DE data is then passed to the \texttt{makespline} function to produce the PWF.  The \texttt{nullp} returns a data frame which has 3 columns, the original DEgenes vector, the length bias data (in a column called bias.data) and the PWF itself (in a column named pwf).  The names of the genes are also kept in this data frame as the names of the rows. If length data could not be obtained for a certain gene the corresponding entries in the "bias.data" and "pwf" columns are set to NA.
 \np
 Next we call the \texttt{goseq} function to determine over/under representation of GO categories amongst DE genes.  When we do this, \texttt{goseq} looks for the appropriate organism package and tries to obtain the mapping from genes to GO categories from it.  This is done using the \texttt{getgo} function as follows:
 <<getgo>>=
@@ -294,14 +296,14 @@ It is just as valid to run the length and GO category fetching as separate steps
 
 <<norm_analysis,eval=FALSE>>=
 pwf=nullp(genes,"hg18","ensGene")
-go=goseq(pwf)
+go=goseq(pwf,"hg18","ensGene")
 @
 and
 <<verbose_analysis,eval=FALSE>>=
 gene_lengths=getlength(names(genes),"hg18","ensGene")
 pwf=nullp(genes,bias.data=gene_lengths)
 go_map=getgo(names(genes),"hg18","ensGene")
-go=goseq(pwf,gene2cat=go_map)
+go=goseq(pwf,"hg18","ensGene",gene2cat=go_map)
 @
 
 \subsection{KEGG pathway analysis}
@@ -330,13 +332,17 @@ KEGG=goseq(pwf,gene2cat=kegg)
 head(KEGG)
 @
 
-This is shown as an illustration of how to supply your own mapping between gene ID and category, KEGG analysis is actually natively supported by GOseq and we could have performed it with the following code.
+Note that we do not have to tell the goseq function what organism and gene ID we are using as we are manually supplying the mapping between genes and categories.
+\np
+KEGG analysis is shown as an illustration of how to supply your own mapping between gene ID and category, KEGG analysis is actually natively supported by GOseq and we could have performed it with the following code.
 
 <<KEGG_goseq>>=
 pwf=nullp(genes,'hg18','ensGene')
-KEGG=goseq(pwf,test.cats="KEGG")
+KEGG=goseq(pwf,'hg18','ensGene',test.cats="KEGG")
 head(KEGG)
 @
+
+Noting that this time it was necessary to tell the goseq function that we are using HG18 and ENSEMBL gene ID, as the function needs this information to automatically construct the mapping from geneid to KEGG pathway.
 
 \subsection{Extracting mappings from organism packages}
 
@@ -346,6 +352,8 @@ If you know that the information mapping gene ID to your categories of interest 
 kegg=as.list(org.Hs.egPATH)
 head(kegg)
 @
+
+A note on fetching GO mappings from the organism.  The data structure of GO is a directed acyclic graph.  This means that in addition to each GO category being associated with a set of genes, it may also have children that are associated to other genes.  It is important to use the org.Hs.egGO2ALLEGS and NOT the org.Hs.egGO object to create the mapping between GO categories and gene identifiers, as the latter does not include the links to genes arising from "child" GO categories.  Thank you to Christopher Fjell for pointing this out.
 
 \subsection{Correcting for other biases}
 
@@ -377,6 +385,10 @@ This vignette was built on:
 <<setup>>=
 sessionInfo()
 @
+
+\section{Acknowledgments}
+
+Christopher Fjell for a series of bug fixes and pointing out the difference between the egGO and egGO2ALLEGS objects in the organism packages.
 
 \bibliographystyle{plainnat}
 \bibliography{goseq_bib}

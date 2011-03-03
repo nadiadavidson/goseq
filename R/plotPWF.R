@@ -6,9 +6,6 @@
 #Date Modified: 13/12/2010
 
 plotPWF = function(pwf,binsize="auto",pwf_col=3,pwf_lwd=2,xlab="Biased Data in <binsize> gene bins.",ylab="Proportion DE",...){
-		#We only want the data frame part of the pwf object...
-		if(is.list(pwf))
-			pwf=pwf$data
 		#We shouldn't try and plot NAs obviously...
 		w=!is.na(pwf$bias.data)
 		o=order(pwf$bias.data[w])

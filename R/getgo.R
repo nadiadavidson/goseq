@@ -28,9 +28,10 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 	}
 	#The (now loaded) organism package contains a mapping between the internal ID and whatever the default is (usually eg), the rest of this function is about changing that mapping to point from categories to the ID specified
 	#Fetch the mapping in its current format
+	#Because GO is a directed graph, we need to get not just the genes associated with each ID, but also those associated with its children.  GO2ALLEGS does this.
 	core2cat=NULL
 	if(length(grep("^GO",fetch.cats))!=0){
-		x=toTable(get(paste(orgstring,"GO",sep='')))
+		x=toTable(get(paste(orgstring,"GO2ALLEGS",sep='')))
 		#Keep only those ones that we specified and keep only the names
 		core2cat=x[x$Ontology%in%gsub("^GO:",'',fetch.cats),1:2]
 		colnames(core2cat)=c("gene_id","category")

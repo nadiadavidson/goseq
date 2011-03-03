@@ -26,13 +26,9 @@ nullp = function(DEgenes, genome, id, bias.data=NULL, plot.fit=TRUE){
 	w=!is.na(bias.data)
 	pwf[w]=makespline(bias.data[w],DEgenes[w])
 
-	#Make a data frame which contains all the input information (or fetched information) and the resulting fit
-	if(missing(genome))
-		genome=NULL
-	if(missing(id))
-		id=NULL
-	out=list(data=data.frame(DEgenes=DEgenes,bias.data=bias.data,pwf=pwf,stringsAsFactors=FALSE),genome=genome,id=id)
-	rownames(out$data)=names(DEgenes)
+	#Make a data frame which contains all the data used to make the fit and the fit itself
+	out=data.frame(DEgenes=DEgenes,bias.data=bias.data,pwf=pwf,stringsAsFactors=FALSE)
+	rownames(out)=names(DEgenes)
 
 	#Plot the PWF if the arument has been specified
 	if(plot.fit){

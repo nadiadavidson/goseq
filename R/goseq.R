@@ -6,14 +6,6 @@
 
 goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),method="Wallenius",repcnt=2000){
 	################# Input pre-processing and validation ###################
-	#Extract genome and id info from the pwf if it is available and needed
-	if(missing(genome) & is.list(pwf) & is.null(gene2cat))
-		genome=pwf$genome
-	if(missing(id) & is.list(pwf) & is.null(gene2cat))
-		id=pwf$id
-	#We no longer need the genome and id parts of the pwf object, so discard them if they exist
-	if(is.list(pwf))
-		pwf=pwf$data
 	#Do some validation of input variables
 	if(any(!test.cats%in%c("GO:CC","GO:BP","GO:MF","KEGG"))){
 		stop("Invaled category specified.  Valid categories are GO:CC, GO:BP, GO:MF or KEGG")
@@ -31,14 +23,6 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 	}
 	if(!is.null(gene2cat) && (!is.data.frame(gene2cat) & !is.list(gene2cat))){
 		stop("Was expecting a dataframe or a list mapping categories to genes.  Check gene2cat input and try again.")
-	}
-	if(missing(pwf)){
-		if(method=="Hypergeometric"){
-			#Need to check this!
-			pwf=rep(1,nrow(pwf))
-		}else{
-			stop("The PWF must be supplied!")
-		}
 	}
 		
 	#Factors are evil
@@ -60,10 +44,10 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 		#The options are a flat mapping (that is a data frame or matrix) or a list, where the list can be either gene->categories or category->genes
 		if(class(gene2cat)!="list"){
 			#it's not a list so it must be a data.frame, work out which column contains the genes
-			genecol=as.numeric(apply(gene2cat,2,function(u){sum(u%in%rownames(pwf))}))
-			genecol=which(genecol!=0)
+			genecol_sum=as.numeric(apply(gene2cat,2,function(u){sum(u%in%rownames(pwf))}))
+			genecol=which(genecol_sum!=0)
 			if(length(genecol)>1){
-				genecol=genecol[order(-genecol)[1]]
+				genecol=genecol[order(-genecol_sum)[1]]
 				warning(paste("More than one possible gene column found in gene2cat, using the one headed",colnames(gene2cat)[genecol]))
 			}
 			if(length(genecol)==0){
@@ -78,6 +62,9 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 			cat2gene=reversemapping(gene2cat)
 			gene2cat=reversemapping(cat2gene)
 		}
+		#!!!!
+		#The following conditional has been flagged as a potential issue when using certain types of input where the category names are the same as gene names (which seems like something you should avoid anyway...).  Leave it for now
+		#!!!!
 		#We're now garunteed to have a list (unless the user screwed up the input) but it could be category->genes rather than the gene->categories that we want. 
 		if(sum(unique(unlist(gene2cat,use.names=FALSE))%in%rownames(pwf))>sum(unique(names(gene2cat))%in%rownames(pwf))){
 			gene2cat=reversemapping(gene2cat)
