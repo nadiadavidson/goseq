@@ -27,7 +27,7 @@ Gordon K.\ Smyth
 Alicia Oshlack}
 % Please increment date when working on this document, so that
 % date shows genuine change date, not merely date of compile.
-\date{3 March 2011}
+\date{30 March 2011}
 \maketitle
 
 \section{Introduction}
@@ -108,13 +108,22 @@ The mapping between category names and genes should be given as a data frame wit
 \np
 Alternatively, mappings between genes and categories can be given as a list.  The names of list entries should be gene IDs and the entries themselves should be a vector of category names to which the gene ID corresponds.
 
+\subsection{Some additional tips}
+
+Any organism for which there is an annotation on either Ensembl or the UCSC, can be easily turned into length data using the GenomicFeatures package.  To do this, first create a TranscriptDb object using either makeTranscriptDbFromBiomart or makeTranscriptDbFromUCSC (see the help in the GenomicFeatures package on using these commands).  Once you have a transcriptDb object, you can get a vector named by gene ID containing the median transcript length of each gene simply by using the command.
+
+<<getLengthDataFromUCSC,eval=FALSE>>=
+txsByGene=transcriptsBy(txdb,"gene")
+lengthData=median(width(txsByGene))
+@
+
 \section{Case study: Prostate cancer data}
 \subsection{Introduction}
 
 This section provides an analysis of data from an RNA-seq experiment to illustrate the use of \texttt{goseq} for GO analysis.
 
 \np
-This experiment examined the effects of androgen stimulation on a human prostate cancer cell line, LNCaP. The data set includes more than 17 million short cDNA reads obtained for both the treated and untreated cell line and sequenced on Illumina’s 1G genome analyzer. 
+This experiment examined the effects of androgen stimulation on a human prostate cancer cell line, LNCaP. The data set includes more than 17 million short cDNA reads obtained for both the treated and untreated cell line and sequenced on Illumina's 1G genome analyzer. 
 
 \np
 For each sample we were provided with the raw 35 bp RNA-seq reads from the authors.  For the untreated prostate cancer cells (LNCaP cell line) there were 4 lanes totaling ~10 million, 35 bp reads.  For the treated cells there were 3 lanes totaling ~7 million, 35 bp reads.  All replicates were technical replicates.  Reads were mapped to NCBI version 36.3 of the human genome using bowtie.  Any read with which mapped to multiple locations was discarded.  Using the ENSEMBL 54 annotation from biomart, each mapped read was associated with an ENSEMBL gene.  This was done by associating any read that overlapped with any part of the gene (not just the exons) with that gene.  Reads that did not correspond to genes were discarded. 
