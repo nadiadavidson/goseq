@@ -89,7 +89,7 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 	DE=rownames(pwf)[pwf$DEgenes==1]
 	num_de=length(DE)
 	num_genes=nrow(pwf)
-	pvals=data.frame(category=cats,over_represented_pvalue=NA,under_represented_pvalue=NA,stringsAsFactors=FALSE)
+	pvals=data.frame(category=cats,over_represented_pvalue=NA,under_represented_pvalue=NA,stringsAsFactors=FALSE,numDEInCat=NA,numInCat=NA)
 
 	if(method=="Sampling"){
 		#We need to know the number of DE genes in each category, make this as a mask that we can use later...
@@ -157,7 +157,12 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 			c(dhyper(num_de_incat,num_incat,num_genes-num_incat,num_de)+phyper(num_de_incat,num_incat,num_genes-num_incat,num_de,lower.tail=FALSE),phyper(num_de_incat,num_incat,num_genes-num_incat,num_de))
 		}))
 	}
-	#Finally, sort by p-value and return...
+   #Populate the count columns...
+   degenesnum=which(pwf$DEgenes==1)
+   cat2genenum=relist(match(unlist(cat2gene),rownames(pwf)),cat2gene)
+   pvals[,4:5]=t(sapply(cat2genenum,function(u){
+      c(sum(degenesnum%in%u),length(u))}))
+   #Finally, sort by p-value and return...
 	pvals=pvals[order(pvals$over_represented_pvalue),]
 	return(pvals)
 }

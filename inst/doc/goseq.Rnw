@@ -27,7 +27,7 @@ Gordon K.\ Smyth
 Alicia Oshlack}
 % Please increment date when working on this document, so that
 % date shows genuine change date, not merely date of compile.
-\date{17 March 2012}
+\date{30 November 2012}
 \maketitle
 
 \section{Introduction}
@@ -140,7 +140,8 @@ To begin with, we load in the text data and convert it the appropriate \texttt{e
 
 <<edger_1>>=
 library(edgeR)
-table.summary=read.table(system.file("extdata","Li_sum.txt",package='goseq'),sep='\t',header=TRUE,stringsAsFactors=FALSE)
+table.summary=read.table(system.file("extdata","Li_sum.txt",package='goseq'),
+	                 sep='\t',header=TRUE,stringsAsFactors=FALSE)
 counts=table.summary[,-1]
 rownames(counts)=table.summary[,1]
 grp=factor(rep(c("Control","Treated"),times=c(4,3)))
@@ -159,7 +160,8 @@ topTags(tested)
 Finally, we Format the DE genes into a vector suitable for use with \texttt{goseq}
 
 <<edger_3>>=
-genes=as.integer(p.adjust(tested$table$PValue[tested$table$logFC!=0],method="BH")<.05)
+genes=as.integer(p.adjust(tested$table$PValue[tested$table$logFC!=0],
+		method="BH")<.05)
 names(genes)=row.names(tested$table[tested$table$logFC!=0,])
 table(genes)
 @
@@ -168,7 +170,7 @@ table(genes)
 
 In order to allow for automatic data retrieval, the user has to tell \texttt{goseq} what genome and gene ID format were used to summarize the data.  In our case we used build 36.1 of the NCBI human genome, we check what code this corresponds to by running:
 
-<<head_genomes>>=
+<<head_genomes,eval=TRUE>>=
 head(supportedGenomes())
 @
 
@@ -223,7 +225,8 @@ head(GO.samp)
 You will notice that this takes far longer than the Wallenius approximation.  Plotting the p-values against one another, we see that there is little difference between the two methods.
 
 <<plot_wal_v_samp,fig=TRUE>>=
-plot(log10(GO.wall[,2]), log10(GO.samp[match(GO.samp[,1],GO.wall[,1]),2]), xlab="log10(Wallenius p-values)", ylab="log10(Sampling p-values)", xlim=c(-3,0))
+plot(log10(GO.wall[,2]), log10(GO.samp[match(GO.samp[,1],GO.wall[,1]),2]), 
+     xlab="log10(Wallenius p-values)",ylab="log10(Sampling p-values)", xlim=c(-3,0))
 abline(0,1,col=3,lty=2)
 @
 
@@ -241,7 +244,8 @@ head(GO.nobias)
 Ignoring length bias gives very different results from a length bias corrected analysis.
 
 <<plot_wal_v_hyper,fig=TRUE>>=
-plot(log10(GO.wall[,2]), log10(GO.nobias[match(GO.nobias[,1],GO.wall[,1]),2]), xlab="log10(Wallenius p-values)", ylab="log10(Hypergeometric p-values)", xlim=c(-3,0), ylim=c(-3,0))
+plot(log10(GO.wall[,2]), log10(GO.nobias[match(GO.nobias[,1],GO.wall[,1]),2]), 
+     xlab="log10(Wallenius p-values)", ylab="log10(Hypergeometric p-values)", xlim=c(-3,0), ylim=c(-3,0))
 abline(0,1,col=3,lty=2)
 @
 
@@ -322,13 +326,15 @@ go=goseq(pwf,"hg18","ensGene",gene2cat=go_map)
 In order to illustrate performing a category test not present in the \texttt{goseq} database, we perform a KEGG pathway analysis.  For human, the mapping from KEGG pathways to genes are stored in the package org.Hs.eg.db, in the object org.Hs.egPATH.  In order to test for KEGG pathway over representation amongst DE genes, we need to extract this information and put it in a format that \texttt{goseq} understands.  Unfortunately, the org.Hs.eg.db package does not contain direct mappings between ENSEMBL gene ID and KEGG pathway.  Therefore, we have to construct this map by combining the ENSEMBL <-> Entrez and Entrez <-> KEGG mappings.  This can be done using the following code:
 
 <<KEGG_mappings,eval=FALSE>>=
-#Get the mapping from ENSEMBL 2 Entrez
+# Get the mapping from ENSEMBL 2 Entrez
 en2eg=as.list(org.Hs.egENSEMBL2EG)
-#Get the mapping from Entrez 2 KEGG
+# Get the mapping from Entrez 2 KEGG
 eg2kegg=as.list(org.Hs.egPATH)
-#Define a function which gets all unique KEGG IDs associated with a set of Entrez IDs
+# Define a function which gets all unique KEGG IDs 
+# associated with a set of Entrez IDs
 grepKEGG=function(id,mapkeys){unique(unlist(mapkeys[id],use.names=FALSE))}
-#Apply this function to every entry in the mapping from ENSEMBL 2 Entrez to combine the two maps
+# Apply this function to every entry in the mapping from 
+# ENSEMBL 2 Entrez to combine the two maps
 kegg=lapply(en2eg,grepKEGG,eg2kegg)
 head(kegg)
 @
