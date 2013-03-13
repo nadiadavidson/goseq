@@ -74,6 +74,11 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 		#Rebuild because it's a fun thing to do
 		cat2gene=reversemapping(gene2cat)
 		gene2cat=reversemapping(cat2gene)
+
+		## make sure we remove duplicate entries .. e.g. see 
+		## http://permalink.gmane.org/gmane.science.biology.informatics.conductor/46876
+		cat2gene=sapply(cat2gene,function(x){unique(x)})
+		gene2cat=sapply(gene2cat,function(x){unique(x)})
 	}
 
 	nafrac=(sum(is.na(pwf$pwf))/nrow(pwf))*100
@@ -138,7 +143,9 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 			avg_weight=mean(pwf$pwf[u])
 			weight=(avg_weight*(num_genes-num_incat))/(alpha-num_incat*avg_weight)
 			#Now calculate the sum of the tails of the Wallenius distribution (the p-values)
-			c(dWNCHypergeo(num_de_incat,num_incat,num_genes-num_incat,num_de,weight)+pWNCHypergeo(num_de_incat,num_incat,num_genes-num_incat,num_de,weight,lower.tail=FALSE),pWNCHypergeo(num_de_incat,num_incat,num_genes-num_incat,num_de,weight))
+			c(dWNCHypergeo(num_de_incat,num_incat,num_genes-num_incat,num_de,weight)
+			+pWNCHypergeo(num_de_incat,num_incat,num_genes-num_incat,num_de,weight,lower.tail=FALSE),
+			pWNCHypergeo(num_de_incat,num_incat,num_genes-num_incat,num_de,weight))
 		}))
 	}
 	if(method=="Hypergeometric"){
