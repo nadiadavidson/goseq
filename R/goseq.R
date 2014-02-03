@@ -4,7 +4,7 @@
 #Author: Matthew Young
 #Date Modified: 17/12/2010
 
-goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),method="Wallenius",repcnt=2000){
+goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),method="Wallenius",repcnt=2000,use_genes_without_cat=F){
 	################# Input pre-processing and validation ###################
 	#Do some validation of input variables
 	if(any(!test.cats%in%c("GO:CC","GO:BP","GO:MF","KEGG"))){
@@ -63,14 +63,18 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 			gene2cat=reversemapping(cat2gene)
 		}
 		#!!!!
-		#The following conditional has been flagged as a potential issue when using certain types of input where the category names are the same as gene names (which seems like something you should avoid anyway...).  Leave it for now
+		#The following conditional has been flagged as a potential issue when using certain 
+		#types of input where the category names are the same as gene names (which seems like 
+		#something you should avoid anyway...).  Leave it for now
 		#!!!!
-		#We're now garunteed to have a list (unless the user screwed up the input) but it could be category->genes rather than the gene->categories that we want. 
+		#We're now garunteed to have a list (unless the user screwed up the input) but it could 
+		#be category->genes rather than the gene->categories that we want. 
 		if(sum(unique(unlist(gene2cat,use.names=FALSE))%in%rownames(pwf))>sum(unique(names(gene2cat))%in%rownames(pwf))){
 			gene2cat=reversemapping(gene2cat)
 		}
 		#Alright, we're garunteed a list going in the direction we want now.  Throw out genes which we will not use
 		gene2cat=gene2cat[names(gene2cat)%in%rownames(pwf)]
+
 		#Rebuild because it's a fun thing to do
 		cat2gene=reversemapping(gene2cat)
 		gene2cat=reversemapping(cat2gene)
@@ -89,13 +93,20 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 	pwf$pwf[is.na(pwf$pwf)]=pwf$pwf[match(sort(pwf$bias.data[!is.na(pwf$bias.data)])[ceiling(sum(!is.na(pwf$bias.data))/2)],pwf$bias.data)]
 
 	###################### Calculating the p-values ########################
+	# Remove all the genes with unknown GOterms
+	unknown_go_terms=nrow(pwf)-length(gene2cat)
+	if((!use_genes_without_cat) && unknown_go_terms>0 ){
+	   message(paste("For",unknown_go_terms,"genes we could not find any GO terms. These genes will be excluded."))
+	   message("To force their use, please run with use_genes_without_cat=T (see documentation).")
+	   message("This was the default behavior for version 1.15.1 and earlier.")
+	   pwf=pwf[rownames(pwf) %in% names(gene2cat),]
+	} 
 	#A few variables are always useful so calculate them
 	cats=names(cat2gene)
 	DE=rownames(pwf)[pwf$DEgenes==1]
 	num_de=length(DE)
 	num_genes=nrow(pwf)
 	pvals=data.frame(category=cats,over_represented_pvalue=NA,under_represented_pvalue=NA,stringsAsFactors=FALSE,numDEInCat=NA,numInCat=NA)
-
 	if(method=="Sampling"){
 		#We need to know the number of DE genes in each category, make this as a mask that we can use later...
 		num_DE_mask=rep(0,length(cats))
@@ -142,6 +153,7 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 			#This is just a quick way of calculating weight=avg(PWF within category)/avg(PWF outside of category)
 			avg_weight=mean(pwf$pwf[u])
 			weight=(avg_weight*(num_genes-num_incat))/(alpha-num_incat*avg_weight)
+			if(num_incat==num_genes){ weight=1 } #case for the root GO terms			
 			#Now calculate the sum of the tails of the Wallenius distribution (the p-values)
 			c(dWNCHypergeo(num_de_incat,num_incat,num_genes-num_incat,num_de,weight)
 			+pWNCHypergeo(num_de_incat,num_incat,num_genes-num_incat,num_de,weight,lower.tail=FALSE),

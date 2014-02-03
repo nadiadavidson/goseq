@@ -168,13 +168,13 @@ table(genes)
 
 \subsection{Determining Genome and Gene ID}
 
-In order to allow for automatic data retrieval, the user has to tell \texttt{goseq} what genome and gene ID format were used to summarize the data.  In our case we used build 36.1 of the NCBI human genome, we check what code this corresponds to by running:
+In order to allow for automatic data retrieval, the user has to tell \texttt{goseq} what genome and gene ID format were used to summarize the data.  In our case we will use GRCh37 build of the human genome, we check what code this corresponds to by running:
 
 <<head_genomes,eval=TRUE>>=
 head(supportedGenomes())
 @
 
-Which lists the genome codes in the far left column, headed ``db''.  As we are using NCBI build 36.1, we see that we should use ``hg18".  We also know that we used ENSEMBL Gene ID to summarize our read data, we check what code this corresponds to by running:
+Which lists the genome codes in the far left column, headed ``db''.  As we are using GRCh37, we see that we should use ``hg19".  We also know that we used ENSEMBL Gene ID to summarize our read data, we check what code this corresponds to by running:
 
 <<head_geneids>>=
 head(supportedGeneIDs(),n=12)
@@ -186,10 +186,10 @@ Note that the head command is only used here to save on space in this guide.  Ag
 
 \subsubsection{Fitting the Probability Weighting Function (PWF)}
 
-We first need to obtain a weighting for each gene, depending on its length, given by the PWF.  As you may have noticed when running supportedGenomes or supportedGeneIDs, length data is available in the local database for our gene ID, ``ensGene" and our genome, ``hg18".  We will let \texttt{goseq} automatically fetch this data from its databases.
+We first need to obtain a weighting for each gene, depending on its length, given by the PWF.  As you may have noticed when running supportedGenomes or supportedGeneIDs, length data is available in the local database for our gene ID, ``ensGene" and our genome, ``hg19".  We will let \texttt{goseq} automatically fetch this data from its databases.
 
 <<pwf,fig=TRUE>>=
-pwf=nullp(genes,"hg18","ensGene")
+pwf=nullp(genes,"hg19","ensGene")
 head(pwf)
 @
 
@@ -205,7 +205,7 @@ To start with we will use the default method, to calculate the over and under ex
 %This hides the output of goseq
 
 <<GO.wall>>=
-GO.wall=goseq(pwf,"hg18","ensGene")
+GO.wall=goseq(pwf,"hg19","ensGene")
 head(GO.wall)
 @
 
@@ -216,7 +216,7 @@ The resulting object is ordered by GO category over representation amongst DE ge
 It may sometimes be desirable to use random sampling to generate the null distribution for category membership.  This is easily accomplished by using the \texttt{method} option to specify sampling and the \texttt{repcnt} option to specify the number of samples to generate:
 
 <<GO.samp,results=hide>>=
-GO.samp=goseq(pwf,"hg18","ensGene",method="Sampling",repcnt=1000)
+GO.samp=goseq(pwf,"hg19","ensGene",method="Sampling",repcnt=1000)
 @
 <<head_samp>>=
 head(GO.samp)
@@ -237,7 +237,7 @@ abline(0,1,col=3,lty=2)
 However, if you still wish to ignore length bias in calculating GO category enrichment, this is again accomplished using the \texttt{method} option.
 
 <<GO.nobias>>=
-GO.nobias=goseq(pwf,"hg18","ensGene",method="Hypergeometric")
+GO.nobias=goseq(pwf,"hg19","ensGene",method="Hypergeometric")
 head(GO.nobias)
 @
 
@@ -254,7 +254,7 @@ abline(0,1,col=3,lty=2)
 By default, \texttt{goseq} tests all three major Gene Ontology branches; Cellular Components, Biological Processes and Molecular Functions.  However, it is possible to limit testing to any combination of the major branches by using the \texttt{test.cats} argument to the goseq function.  This is done by specifying a vector consisting of some combination of the strings ``GO:CC", ``GO:BP" and ``GO:MF".  For example, to test for only Molecular Function GO categories:
 
 <<GO.limited>>=
-GO.MF=goseq(pwf,"hg18","ensGene",test.cats=c("GO:MF"))
+GO.MF=goseq(pwf,"hg19","ensGene",test.cats=c("GO:MF"))
 head(GO.MF)
 @
 
@@ -285,7 +285,7 @@ The situation may arise where it is necessary for the user to perform some of th
 \np
 To start with, when \texttt{nullp} is called, \texttt{goseq} uses the genome and gene identifiers supplied to try and retrieve length information for all genes given to the \texttt{genes} argument.  To do this, it retrieves the data from the database of gene lengths maintained in the package \texttt{geneLenDataBase}.  This is performed by the \texttt{getlength} function in the following way:
 <<getlength>>=
-len=getlength(names(genes),"hg18","ensGene")
+len=getlength(names(genes),"hg19","ensGene")
 length(len)
 length(genes)
 head(len)
@@ -294,7 +294,7 @@ After some data cleanup, the length data and the DE data is then passed to the \
 \np
 Next we call the \texttt{goseq} function to determine over/under representation of GO categories amongst DE genes.  When we do this, \texttt{goseq} looks for the appropriate organism package and tries to obtain the mapping from genes to GO categories from it.  This is done using the \texttt{getgo} function as follows:
 <<getgo>>=
-go=getgo(names(genes),"hg18","ensGene")
+go=getgo(names(genes),"hg19","ensGene")
 length(go)
 length(genes)
 head(go)
@@ -310,15 +310,15 @@ goseq:::.ORG_PACKAGES
 It is just as valid to run the length and GO category fetching as separate steps and then pass the result to the \texttt{nullp} and \texttt{goseq} functions using the \texttt{bias.data} and \texttt{gene2cat} arguments.  Thus the following two blocks of code are equivalent:
 
 <<norm_analysis,eval=FALSE>>=
-pwf=nullp(genes,"hg18","ensGene")
-go=goseq(pwf,"hg18","ensGene")
+pwf=nullp(genes,"hg19","ensGene")
+go=goseq(pwf,"hg19","ensGene")
 @
 and
 <<verbose_analysis,eval=FALSE>>=
-gene_lengths=getlength(names(genes),"hg18","ensGene")
+gene_lengths=getlength(names(genes),"hg19","ensGene")
 pwf=nullp(genes,bias.data=gene_lengths)
-go_map=getgo(names(genes),"hg18","ensGene")
-go=goseq(pwf,"hg18","ensGene",gene2cat=go_map)
+go_map=getgo(names(genes),"hg19","ensGene")
+go=goseq(pwf,"hg19","ensGene",gene2cat=go_map)
 @
 
 \subsection{KEGG pathway analysis}
@@ -344,7 +344,7 @@ Note that this step is quite time consuming.  The code written here is not the m
 We produce the PWF as before.  Then, to perform a KEGG analysis, we simply make use of the \texttt{gene2cat} option in \texttt{goseq}:
 
 <<KEGG,eval=FALSE>>=
-pwf=nullp(genes,"hg18","ensGene")
+pwf=nullp(genes,"hg19","ensGene")
 KEGG=goseq(pwf,gene2cat=kegg)
 head(KEGG)
 @
@@ -354,12 +354,12 @@ Note that we do not have to tell the goseq function what organism and gene ID we
 KEGG analysis is shown as an illustration of how to supply your own mapping between gene ID and category, KEGG analysis is actually natively supported by GOseq and we could have performed it with the following code.
 
 <<KEGG_goseq>>=
-pwf=nullp(genes,'hg18','ensGene')
-KEGG=goseq(pwf,'hg18','ensGene',test.cats="KEGG")
+pwf=nullp(genes,'hg19','ensGene')
+KEGG=goseq(pwf,'hg19','ensGene',test.cats="KEGG")
 head(KEGG)
 @
 
-Noting that this time it was necessary to tell the goseq function that we are using HG18 and ENSEMBL gene ID, as the function needs this information to automatically construct the mapping from geneid to KEGG pathway.
+Noting that this time it was necessary to tell the goseq function that we are using HG19 and ENSEMBL gene ID, as the function needs this information to automatically construct the mapping from geneid to KEGG pathway.
 
 \subsection{Extracting mappings from organism packages}
 
@@ -386,11 +386,11 @@ length(countbias)
 length(genes)
 @
 
-To use the count bias when doing GO analysis, simply pass this vector to \texttt{nullp} using the \texttt{bias.data} option.  Note that we have to supply "hg18" and "ensGene" to \texttt{goseq} as it is not used by nullp and hence not in the pwf.counts object.
+To use the count bias when doing GO analysis, simply pass this vector to \texttt{nullp} using the \texttt{bias.data} option.  Note that we have to supply "hg19" and "ensGene" to \texttt{goseq} as it is not used by nullp and hence not in the pwf.counts object.
 
 <<GO.counts>>=
 pwf.counts=nullp(genes,bias.data=countbias)
-GO.counts=goseq(pwf.counts,"hg18","ensGene")
+GO.counts=goseq(pwf.counts,"hg19","ensGene")
 head(GO.counts)
 @
 

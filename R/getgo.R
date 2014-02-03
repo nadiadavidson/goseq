@@ -33,7 +33,9 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 	if(length(grep("^GO",fetch.cats))!=0){
 		x=toTable(get(paste(orgstring,"GO2ALLEGS",sep='')))
 		#Keep only those ones that we specified and keep only the names
-		core2cat=x[x$Ontology%in%gsub("^GO:",'',fetch.cats),1:2]
+#		core2cat=x[x$Ontology%in%gsub("^GO:",'',fetch.cats),1:2]
+		x[!x$Ontology%in%gsub("^GO:",'',fetch.cats),2]<-"Other"
+		core2cat=x[,1:2]
 		colnames(core2cat)=c("gene_id","category")
 	}
 	if(length(grep("^KEGG",fetch.cats))!=0){
@@ -74,6 +76,10 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 		user2cat=split(core2cat[,2],core2cat[,1])
 		user2cat=sapply(user2cat,unique)
 	}
+	#remove any empty strings
+	user2cat=lapply(user2cat,function(x){  
+	        if(length(x)>1) x=x[x!="Other"]  
+		x })
 
 	#Now look them up
 	return(user2cat[genes])
