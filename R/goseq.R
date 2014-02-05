@@ -96,7 +96,7 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 	# Remove all the genes with unknown GOterms
 	unknown_go_terms=nrow(pwf)-length(gene2cat)
 	if((!use_genes_without_cat) && unknown_go_terms>0 ){
-	   message(paste("For",unknown_go_terms,"genes we could not find any GO terms. These genes will be excluded."))
+	   message(paste("For",unknown_go_terms,"genes, we could not find any categories. These genes will be excluded."))
 	   message("To force their use, please run with use_genes_without_cat=T (see documentation).")
 	   message("This was the default behavior for version 1.15.1 and earlier.")
 	   pwf=pwf[rownames(pwf) %in% names(gene2cat),]

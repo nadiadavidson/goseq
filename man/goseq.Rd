@@ -11,7 +11,7 @@ Does selection-unbiased testing for category enrichment amongst differentially e
 \usage{
 goseq(pwf, genome, id, gene2cat = NULL,  
 	test.cats=c("GO:CC", "GO:BP", "GO:MF"), 
-	method = "Wallenius", repcnt = 2000, use_genes_without_GO=F)
+	method = "Wallenius", repcnt = 2000, use_genes_without_cat=F)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
