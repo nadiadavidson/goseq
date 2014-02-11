@@ -18,7 +18,7 @@
 %\VignetteIndexEntry{goseq User's Guide}
 
 \title{\texttt{goseq}: Gene Ontology testing for RNA-seq datasets}
-\author{Matthew D. Young}
+\author{Matthew D. Young
 \and
 Nadia Davidson \\ \texttt{nadia.davidson@mcri.edu.au}
 \and
@@ -308,7 +308,7 @@ head(go)
 Note that some of the gene categories have been returned as "NULL". This means that a GO category could not be found in the database for 
 one of the genes. In the \texttt{goseq} command, enrichment will only be calculated using genes with a GO category by default. However, in older 
 versions of goseq (below 1.15.2), we counted all genes. i.e. genes with no categories still counted towards the total number of gene outside
-of any single category. It is possible to switch between these two behaviors using the \texttt{use_genes_without_cat} flag in \texttt{goseq}.
+of any single category. It is possible to switch between these two behaviors using the \texttt{use\_genes\_without\_cat} flag in \texttt{goseq}.
 
 
 The first thing the getgo function does is to convert the UCSC genome/ID namings into the naming convention used by the organism packages.  This is done using two hard coded conversion vectors that are included in the \texttt{goseq} package but usually hiden from the user.
