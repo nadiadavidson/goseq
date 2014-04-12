@@ -2,7 +2,7 @@
 #Description: Attempts to fetch the categories specified for the given genes, genome and gene ID format
 #Notes: Relies on the bioconductor organism packages being installed for whatever genome you specify
 #Author: Matthew Young
-#Date Modified: 17/12/2010
+#Date Modified: 12/4/2014
 
 getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 	#Check for valid input
@@ -10,7 +10,7 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 		stop("Invaled category specified.  Categories can only be GO:CC, GO:BP, GO:MF or KEGG")
 	}
 	#Convert from genome ID to org.__.__.db format
-	orgstring=as.character(.ORG_PACKAGES[grep(gsub("[0-9]+",'',genome),names(.ORG_PACKAGES),ignore.case=TRUE)])
+	orgstring=as.character(.ORG_PACKAGES[match(gsub("[0-9]+",'',genome),names(.ORG_PACKAGES))])
 	#Multimatch or no match
 	if(length(orgstring)!=1){
 		stop("Couldn't grab GO categories automatically.  Please manually specify.")
@@ -21,7 +21,7 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 	coreid=strsplit(orgstring,"\\.")[[1]][3]
 
 	#Now we need to convert it into the naming convention used by the organism packages
-	userid=as.character(.ID_MAP[grep(id,names(.ID_MAP),ignore.case=TRUE)])
+	userid=as.character(.ID_MAP[match(id,names(.ID_MAP))])
 	#Multimatch or no match
 	if(length(userid)!=1){
 		stop("Couldn't grab GO categories automatically.  Please manually specify.")

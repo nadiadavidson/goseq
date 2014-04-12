@@ -11,7 +11,7 @@
 
 #Mappings that are primarily required by getgo, the purpose of this is to convert the UCSC genome IDs, to the bioconductor organism names, e.g. "mm"->"org.Mm."
 .ORG_PACKAGES=paste("org.",c("Ag.eg","At.tair","Bt.eg","Ce.eg","Cf.eg","Dm.eg","Dr.eg","EcK12.eg","EcSakai.eg","Gg.eg","Hs.eg","Mm.eg","Mmu.eg","Pf.plasmo","Pt.eg","Rn.eg","Sc.sgd","Ss.eg","Xl.eg"),sep='')
-names(.ORG_PACKAGES)=c("anoGam","Arabidopsis","bosTau","ce","canFam","dm","danRer","E. coli K12","E. coli Sakai","galGal","hg","mm","rheMac","Malaria","panTro","rn","sacCer","Pig","xenTro")
+names(.ORG_PACKAGES)=c("anoGam","Arabidopsis","bosTau","ce","canFam","dm","danRer","E. coli K12","E. coli Sakai","galGal","hg","mm","rheMac","Malaria","panTro","rn","sacCer","susScr","xenTro")
 #These are the only formats supported by getgo at the moment, the purpose is to convert the USCC gene ID formats, to the shorthand used by the bioconductor organism packages, .e.g. "refGene"->"ENSEMBL"
 .ID_MAP=c("eg","eg","ENSEMBL","SYMBOL")
 names(.ID_MAP)=c("knownGene","refGene","ensGene","geneSymbol")
