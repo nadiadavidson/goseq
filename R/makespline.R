@@ -2,7 +2,7 @@
 #Description: Fits a spline to the data (x,y) using penalized constrained least squares
 #Notes: 
 #Author: Matthew Young
-#Date Modified: 13/12/2010
+#Date Modified: 5/6/2014
 
 makespline=function (x, y, newX=NULL, nKnots = 6, lower_bound=10^-3){
 	#Should not be used outside of goseq package.  Refer to the help pages for pcls in the mgcv package for more general 
@@ -10,13 +10,14 @@ makespline=function (x, y, newX=NULL, nKnots = 6, lower_bound=10^-3){
 	#We handle montonocily decreasing problems by reformulating them as monotonicly increasing by reflecting about "infinity"
 	#Compare the first 10% to the last 10%
 	ww=order(x)
-	size=ceiling(length(y)/10)
-	low=sum(y[ww][1:size])
-	hi=sum(y[ww][(length(y)-size):length(y)])
+	size=ceiling(length(y)/10) 
+	low=sum(y[ww][1:size]) 
+	hi=sum(y[ww][(length(y)-size):length(y)]) 
 	#Is the trend decreasing
 	if(hi<=low){
 		#Reform as a montonicly increasing fit by reflecting about infitinity
-		x=10^10-x
+		reflectionFactor=10^10
+		x=reflectionFactor-x
 	}
 	#The number of knots to use when generating the spline
 	nKnots <- round(nKnots)
@@ -35,13 +36,19 @@ makespline=function (x, y, newX=NULL, nKnots = 6, lower_bound=10^-3){
 	sm <- smoothCon(s(x, k = nKnots, bs = "cr"), dat, knots = NULL)[[1]]
 	if (length(sm$xp) < 6) 
 		warning("Few than 6 nKnots were specified!\n Possible inaccurate fitting!\n")
-	#The lower and upper parameters here don't seem to build the right constraints 100% of the time, so add them manually
 	F <- mono.con(sm$xp,TRUE)
-	F$A=rbind(F$A,c(1,rep(0,ncol(F$A)-1)),c(rep(0,ncol(F$A)-1),-1))
-	F$b=c(F$b,0,1)
-	G <- list(X = sm$X, C = matrix(0, 0, 0), sp = f.ug$sp, p = sm$xp, 
-	    y = y, w = y * 0 + 1, Ain =F$A, bin = F$b, S = sm$S, 
-	    off = 0)
+	# The lower and upper parameters here don't seem to build the right constraints 100% of the time, so add them manually
+	# ND-6/14- removing the upper limit constraint because it wasn't satisfied by initial parameters.
+	# Hope it doesn't break the code.
+	F$A=rbind(F$A,c(1,rep(0,ncol(F$A)-1))) #,c(rep(0,ncol(F$A)-1)),-1))
+	F$b=c(F$b,0) #,1) ND - should this last one be -1?
+	G <- list(X = sm$X, C = matrix(0, 0, 0), sp = f.ug$sp, p = sm$xp,
+	    y = y, w = y * 0 + 1, Ain =F$A, bin = F$b, S = sm$S, off = 0)
+	# do some error checking as pcls can return NaNs sometimes if this isn't true
+	if( any((G$Ain%*%G$p - G$bin) < 0 )){
+	   show(G$p)
+	   stop("Constraints for spline fit not satisfied by initial parameters")
+	}
 	#Do the actual fitting with penalized contstrained least squares
 	p <- pcls(G)
 	#Now what we want is the value of the spline at each data point x,
