@@ -4,7 +4,7 @@
 #Author: Matthew Young
 #Date Modified: 17/12/2010
 
-goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),method="Wallenius",repcnt=2000,use_genes_without_cat=F){
+goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),method="Wallenius",repcnt=2000,use_genes_without_cat=FALSE){
 	################# Input pre-processing and validation ###################
 	#Do some validation of input variables
 	if(any(!test.cats%in%c("GO:CC","GO:BP","GO:MF","KEGG"))){
@@ -97,7 +97,7 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 	unknown_go_terms=nrow(pwf)-length(gene2cat)
 	if((!use_genes_without_cat) && unknown_go_terms>0 ){
 	   message(paste("For",unknown_go_terms,"genes, we could not find any categories. These genes will be excluded."))
-	   message("To force their use, please run with use_genes_without_cat=T (see documentation).")
+	   message("To force their use, please run with use_genes_without_cat=TRUE (see documentation).")
 	   message("This was the default behavior for version 1.15.1 and earlier.")
 	   pwf=pwf[rownames(pwf) %in% names(gene2cat),]
 	} 
