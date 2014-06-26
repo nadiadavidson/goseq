@@ -67,7 +67,7 @@ CAUTION:  "Hypergeometric" should NEVER be used for producing results for biolog
 "Hypergeometric" assumes there is no bias in power to detect differential expression at all and calculates the p-values using a standard hypergeometric distribution.  Useful if you wish to test the effect of selection bias on your results.
 }
 \value{
-goseq returns a data frame with 3 columns.  The first column gives the name of the category, the second gives the p-value for the associated category being over represented amongst DE genes.  The third and final column gives the p-value for the associated category being under represented amongst DE genes.  The p-values have not been corrected for multiple hypothesis testing.
+goseq returns a data frame with several columns.  The first column gives the name of the category, the second gives the p-value for the associated category being over represented amongst DE genes.  The third column gives the p-value for the associated category being under represented amongst DE genes.  The p-values have not been corrected for multiple hypothesis testing. The fourth and fifth columns give the number of differentially expressed genes in the category and total genes in the category respectively. If any of the categories was a GO term, there will be two additional columns for the GO term and its ontology.
 }
 \references{
   Young, M. D., Wakefield, M. J., Smyth, G. K., Oshlack, A. (2010) \emph{Gene ontology analysis for RNA-seq: accounting for selection bias}

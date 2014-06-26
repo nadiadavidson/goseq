@@ -180,8 +180,20 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
    degenesnum=which(pwf$DEgenes==1)
    cat2genenum=relist(match(unlist(cat2gene),rownames(pwf)),cat2gene)
    pvals[,4:5]=t(sapply(cat2genenum,function(u){
-      c(sum(degenesnum%in%u),length(u))}))
-   #Finally, sort by p-value and return...
-	pvals=pvals[order(pvals$over_represented_pvalue),]
-	return(pvals)
+      c(sum(degenesnum%in%u),length(u))
+   }))
+   
+   #Finally, sort by p-value
+   pvals=pvals[order(pvals$over_represented_pvalue),]
+
+   # Supplement the table with the GO term name and ontology group
+   # but only if the enrichment categories are actually GO terms
+   if(any(grep("^GO:",pvals$category))){
+      GOnames=select(GO.db,keys=pvals$category,columns=c("TERM","ONTOLOGY"))[,2:3]
+      colnames(GOnames)<-tolower(colnames(GOnames))
+      pvals=cbind(pvals,GOnames)
+   }
+
+   # And return
+   return(pvals)
 }
