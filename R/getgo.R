@@ -81,6 +81,9 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 	        if(length(x)>1) x=x[x!="Other"]  
 		x })
 
+	## we don't like case sensitivity
+	names(user2cat)<-toupper(names(user2cat))
+
 	#Now look them up
-	return(user2cat[genes])
+	return(user2cat[toupper(genes)])
 }

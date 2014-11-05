@@ -35,7 +35,10 @@ getlength=function(genes,genome,id){
 		#download the relevant table from UCSC
 		session <- browserSession()
 		genome(session)<-genome
-		query <- ucscTableQuery(session,id)
+		if(id=="geneSymbol") #take the geneSymbols from refSeq genes
+		   query <- ucscTableQuery(session,"refGene")
+		else 
+		   query <- ucscTableQuery(session,id)
 		transTable<-getTable(query)
 
 		# all this below is to get the length information of each gene
@@ -50,10 +53,10 @@ getlength=function(genes,genome,id){
 		# now we need to get the correct list of gene names.
 		names1=as.character(transTable$name)
 		gene_names=names1
-		if(!any(genes%in%names1)){   
+		if(!any(toupper(genes)%in%toupper(names1))){   
 		   #check which column has the gene names
 		   names2=as.character(transTable$name2)    
-		   if(any(genes%in%names2)){
+		   if(any(toupper(genes)%in%toupper(names2))){
 			gene_names=names2
 		   }
 		}
@@ -73,7 +76,7 @@ getlength=function(genes,genome,id){
 			Max=sapply(data,max),Count=sapply(data,length))
 
 	#How many of the genes match the names the user specified with "genes"
-	matched_frac=sum(genes%in%gene_names)/length(genes)
+	matched_frac=sum(toupper(genes)%in%toupper(gene_names))/length(genes)
 	#None? Throw an error.
 	if(matched_frac==0){
 		stop("The gene names specified do not match the gene names for genome ",
@@ -88,5 +91,5 @@ getlength=function(genes,genome,id){
 		paste(gene_names[1:10],collapse=", "))
 	}
 	#Finally, return the median transcript length for each matching gene
-	return(len$Median[match(genes,len$Gene)])
+	return(len$Median[match(toupper(genes),toupper(len$Gene))])
 }
