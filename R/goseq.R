@@ -8,7 +8,7 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 	################# Input pre-processing and validation ###################
 	#Do some validation of input variables
 	if(any(!test.cats%in%c("GO:CC","GO:BP","GO:MF","KEGG"))){
-		stop("Invaled category specified.  Valid categories are GO:CC, GO:BP, GO:MF or KEGG")
+		stop("Invalid category specified.  Valid categories are GO:CC, GO:BP, GO:MF or KEGG")
 	}
 	if((missing(genome) | missing(id))){
 		if(is.null(gene2cat)){
@@ -81,8 +81,8 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 
 		## make sure we remove duplicate entries .. e.g. see 
 		## http://permalink.gmane.org/gmane.science.biology.informatics.conductor/46876
-		cat2gene=sapply(cat2gene,function(x){unique(x)})
-		gene2cat=sapply(gene2cat,function(x){unique(x)})
+		cat2gene=lapply(cat2gene,function(x){unique(x)})
+		gene2cat=lapply(gene2cat,function(x){unique(x)})
 	}
 
 	nafrac=(sum(is.na(pwf$pwf))/nrow(pwf))*100
