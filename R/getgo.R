@@ -2,7 +2,7 @@
 #Description: Attempts to fetch the categories specified for the given genes, genome and gene ID format
 #Notes: Relies on the bioconductor organism packages being installed for whatever genome you specify
 #Author: Matthew Young
-#Date Modified: 12/4/2014
+#Date Modified: 17/2/2015
 
 getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 	#Check for valid input
@@ -23,15 +23,22 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 	#Now we need to convert it into the naming convention used by the organism packages
 	userid=as.character(.ID_MAP[match(id,names(.ID_MAP))])
 	#Multimatch or no match
-	if(length(userid)!=1){
+	if(is.na(userid) | (length(userid)!=1)){
 		stop("Couldn't grab GO categories automatically.  Please manually specify.")
 	}
-	#The (now loaded) organism package contains a mapping between the internal ID and whatever the default is (usually eg), the rest of this function is about changing that mapping to point from categories to the ID specified
+	#The (now loaded) organism package contains a mapping between the internal ID and whatever 
+        #the default is (usually eg), the rest of this function is about changing that mapping to 
+	#point from categories to the ID specified
 	#Fetch the mapping in its current format
-	#Because GO is a directed graph, we need to get not just the genes associated with each ID, but also those associated with its children.  GO2ALLEGS does this.
+	#Because GO is a directed graph, we need to get not just the genes associated with each ID, 
+	#but also those associated with its children.  GO2ALLEGS does this.
 	core2cat=NULL
 	if(length(grep("^GO",fetch.cats))!=0){
-		x=toTable(get(paste(orgstring,"GO2ALLEGS",sep='')))
+	        #Get the name of the function which maps gene ids to go terms
+		#usually this will be "GO2ALLEG"
+	        gomapFunction=.ORG_GOMAP_FUNCTION[orgstring]
+		if(is.na(gomapFunction)) gomapFunction=.ORG_GOMAP_FUNCTION["default"]	
+		x=toTable(get(paste(orgstring,gomapFunction,sep='')))
 		#Keep only those ones that we specified and keep only the names
 #		core2cat=x[x$Ontology%in%gsub("^GO:",'',fetch.cats),1:2]
 		x[!x$Ontology%in%gsub("^GO:",'',fetch.cats),2]<-"Other"
@@ -59,7 +66,8 @@ getgo=function(genes,genome,id,fetch.cats=c("GO:CC","GO:BP","GO:MF")){
 		list_core2cat=split(core2cat[,2],core2cat[,1])
 		#Now we need to replicate the core IDs that need replicating
 		list_core2cat=list_core2cat[match(user2core[,1],names(list_core2cat))]
-		#Now we can replace the labels on this list with the user ones from user2core, but there will be duplicates, so we have to unlist, label, then relist
+		#Now we can replace the labels on this list with the user ones from user2core, 
+		#but there will be duplicates, so we have to unlist, label, then relist
 		user2cat=split(unlist(list_core2cat,FALSE,FALSE),rep(user2core[,2],sapply(list_core2cat,length)))
 		#Now we only want each category listed once for each entry...
 		user2cat=sapply(user2cat,unique)
