@@ -2,7 +2,7 @@
 #Description: Fetches gene length data for the genome and id specified.
 #Notes:
 #Author: Matthew Young, Nadia Davidson
-#Date Modified: 31/1/2013
+#Date Modified: 7/4/2015
 
 getlength=function(genes,genome,id){
 	#geneLenDataBase contains all the gene length data, check it is installed
@@ -10,7 +10,8 @@ getlength=function(genes,genome,id){
 		stop("Package geneLenDataBase is required for automatic gene length lookup.")
 	}
 	#Get a list of the length data files that are in the package
-	repo=grep(".*\\..*\\.LENGTH",as.data.frame(data(package="geneLenDataBase")$results,stringsAsFactors=FALSE)$Item,ignore.case=TRUE,value=TRUE)
+	repo=grep(".*\\..*\\.LENGTH",as.data.frame(data(package="geneLenDataBase")$results,
+           stringsAsFactors=FALSE)$Item,ignore.case=TRUE,value=TRUE)
 	#Is this genome/id in the local repository?
 	if(paste(genome,id,"LENGTH",sep='.')%in%repo){
 	   #Yes it is, so load it and group transcript lengths into genes
@@ -20,16 +21,59 @@ getlength=function(genes,genome,id){
 
 	   #Get the names of the genes used in the genome package
 	   gene_names=get(paste(genome,id,"LENGTH",sep="."))$Gene
-	} else {
-	   
-	   #If it's not in geneLenDataBase, try to load the data from UCSC using rtracklayer
-	   if(!require("rtracklayer")){
-		stop("Can't load the rtracklayer library. Is it installed?...")
+
+	} else { ### Try to find the gene lengths from TXDB annotation packages
+	   message("Can't find ",genome,"/",id," length data in genLenDataBase...")
+
+	   ## Is there a TxDB package installed for the organism?
+	   installedPackages=rownames(installed.packages())
+
+	   #first try looking for a match with the same type of gene IDs
+	   txdbPattern=paste("TxDb","*",genome,id,sep=".")
+	   txdbPack=installedPackages[grep(txdbPattern,installedPackages)]
+
+	   #if not look for the package with generic gene IDs and convert later
+	   if(length(txdbPack)==0){ 
+	      orgstring=as.character(.ORG_PACKAGES[match(gsub("[0-9]+",'',genome),names(.ORG_PACKAGES))])
+	      packageExtension=tail(strsplit(orgstring,".",fixed=T)[[1]],n=1)
+	      genericID=names(.ID_MAP[which(.ID_MAP==packageExtension)])
+	      txdbPattern=paste("TxDb","*",genome,genericID,sep=".")  
+	      txdbPack=installedPackages[grep(txdbPattern,installedPackages)]
+	      if(length(txdbPack)>0){
+	      	 library(paste(orgstring,"db",sep='.'),character.only=TRUE)
+	      	 userid=as.character(.ID_MAP[match(id,names(.ID_MAP))])
+	      	 user2core=toTable(get(paste(orgstring,userid,sep='')))
+	   	}
 	   }
-		message("Can't find ",genome,"/",id," length data in genLenDataBase... Trying to download from UCSC. ",
+	   if(length(txdbPack)>0){
+	      message("Found the annotaion package, ",txdbPack)
+	      message("Trying to get the gene lengths from it.")
+	      library(txdbPack,character.only=TRUE)
+	      txdb<-get(txdbPack)
+	      txlens<-transcriptLengths(txdb)
+	      core2len=split(txlens$tx_len,txlens$gene_id)
+	      if(length(grep(id,txdbPattern))!=0){
+	         data=core2len ; gene_names=names(data)
+	      } else { #We need to conver between gene IDs. Just use Matt's code from getgo.R
+                 #Now we need to replicate the core IDs that need replicating
+                 core2len=core2len[match(user2core[,1],names(core2len))]
+                 #Now we can replace the labels on this list with the user ones from user2core,
+                 #but there will be duplicates, so we have to unlist, label, then relist
+                 data=split(unlist(core2len,FALSE,FALSE),rep(user2core[,2],sapply(core2len,length)))
+	         gene_names=names(data)
+	     }
+	   } else { ## Can't use TxDB
+	      if(length(txdbPack)==0 & any(.TXDB_ORGS==genome)) {
+	         message("A TxDb annotation package exists for ",genome,". Consider installing it to get the gene lengths.",sep="")
+	      }
+	      #If it's not in geneLenDataBase, try to load the data from UCSC using rtracklayer
+	      if(!require("rtracklayer")){
+		  stop("Can't load the rtracklayer library. Is it installed?...")
+	      }
+	      message("Trying to download from UCSC. ",
 			 "This might take a couple of minutes. ")
 
-	   tryCatch( {
+	      tryCatch( {
 			 
 		#If not, then the user will have to supply it themselves
 		#download the relevant table from UCSC
@@ -67,9 +111,9 @@ getlength=function(genes,genome,id){
 		   stop("Length information for genome ",genome," and gene ID ",id,
 			" is not available. You will have to specify bias.data manually.") 
 		}
-            )
+            	)
+	    }
 	}
-
 	#In order to assign just one length to each gene, we store the Median, Min Max 
 	#and count of transcripts for each gene for later use
 	len=data.frame(Gene=names(data),Median=sapply(data,median),Min=sapply(data,min),

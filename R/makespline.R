@@ -2,7 +2,7 @@
 #Description: Fits a spline to the data (x,y) using penalized constrained least squares
 #Notes: 
 #Author: Matthew Young
-#Date Modified: 5/6/2014
+#Date Modified: 7/4/2015
 
 makespline=function (x, y, newX=NULL, nKnots = 6, lower_bound=10^-3){
 	#Should not be used outside of goseq package.  Refer to the help pages for pcls in the mgcv package for more general 
@@ -51,9 +51,17 @@ makespline=function (x, y, newX=NULL, nKnots = 6, lower_bound=10^-3){
 	}
 	#Do the actual fitting with penalized contstrained least squares
 	p <- pcls(G)
+
+	# Do some error checking for the rare case that p returns "Na"
+	if(any(is.na(p))){
+	   warning("The splines fit failed! Returning a flat weight distribution. This may compromise your GO analysis, please check what happened.")
+	   return(rep(mean(y),length(newX)))
+	}
+
 	#Now what we want is the value of the spline at each data point x,
 	fv <- Predict.matrix(sm, data.frame(x = newX)) %*% p
 	fv <- as.vector(fv)
+
 	#If pcls still fails for some reason and returns negative values (or values that are so low that they'll have an effective relative weight of Inf
 	#then we need to add a little bit to every weight to make things non-negative, the choice of minimum weight is somewhat arbitrary and serves only to
 	#ensure that we don't have positive weights that will be infinitely prefered as a ratio.

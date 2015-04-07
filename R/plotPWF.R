@@ -9,11 +9,12 @@ plotPWF = function(pwf,binsize="auto",pwf_col=3,pwf_lwd=2,xlab="Biased Data in <
 		#We shouldn't try and plot NAs obviously...
 		w=!is.na(pwf$bias.data)
 		o=order(pwf$bias.data[w])
+		#What is the total range in the fit?
+		rang=max(pwf$pwf,na.rm=TRUE)-min(pwf$pwf,na.rm=TRUE)
+		if(rang==0 & binsize=="auto") binsize=1000
 		if(binsize=="auto"){
 			#A low number of starting genes to bin, usually 100
 			binsize=max(1,min(100,floor(sum(w)*.08)))
-			#What is the total range in the fit?
-			rang=max(pwf$pwf,na.rm=TRUE)-min(pwf$pwf,na.rm=TRUE)
 			resid=rang
 			#Turn off warnings till we've worked out what we're doing
 			oldwarn=options()$warn
