@@ -112,7 +112,7 @@ Alternatively, mappings between genes and categories can be given as a list.  Th
 
 \subsection{Some additional tips}
 
-Any organism for which there is an annotation on either Ensembl or the UCSC, can be easily turned into length data using the GenomicFeatures package.  To do this, first create a TranscriptDb object using either makeTranscriptDbFromBiomart or makeTranscriptDbFromUCSC (see the help in the GenomicFeatures package on using these commands).  Once you have a transcriptDb object, you can get a vector named by gene ID containing the median transcript length of each gene simply by using the command.
+Any organism for which there is an annotation on either Ensembl or the UCSC, can be easily turned into length data using the GenomicFeatures package.  To do this, first create a TranscriptDb object using either makeTxDbFromBiomart or makeTxDbFromUCSC (see the help in the GenomicFeatures package on using these commands).  Once you have a transcriptDb object, you can get a vector named by gene ID containing the median transcript length of each gene simply by using the command.
 
 <<getLengthDataFromUCSC,eval=FALSE>>=
 txsByGene=transcriptsBy(txdb,"gene")
