@@ -31,7 +31,7 @@ A data frame with two columns containing the mapping between genes and the categ
 A vector specifying which categories to test for over representation amongst DE genes.  See details for allowed options.
 }
   \item{method}{
-The method to use to calculate the unbiased category enrichment scores.  Valid options are "Wallenius", "Sampling" & "Hypergeometric".  "Hypergeometric" should almost never be used (see details).
+The method to use to calculate the unbiased category enrichment scores.  Valid options are "Wallenius", "Sampling" & "Hypergeometric".  "Hypergeometric" and "Sampling" should almost never be used (see details).
 }
   \item{repcnt}{
 Number of random samples to be calculated when random sampling is used.  Ignored unless \code{method="Sampling"}.
@@ -58,9 +58,9 @@ Valid options for the \code{test.cats} arguement are any combination of "GO:CC",
 
 The three methods, "Wallenius", "Sampling" & "Hypergeometric", calculate the p-values as follows.  
 
-"Wallenius" approximates the true distribution of numbers of members of a category amongst DE genes by the Wallenius non-central hypergeometric distribution.  This distribution assumes that within a category all genes have the same probability of being chosen.  Therefore, this approximation works best when the range in probabilities obtained by the probability weighting function is small.  
+"Wallenius" approximates the true distribution of numbers of members of a category amongst DE genes by the Wallenius non-central hypergeometric distribution.  This distribution assumes that within a category all genes have the same probability of being chosen.  Therefore, this approximation works best when the range in probabilities obtained by the probability weighting function is small. "Wallenius" is the recommended method for calculating p-values.
 
-"Sampling" uses random sampling to approximate the true distribution and uses it to calculate the p-values for over (and under) representation of categories.  Although this is the most accurate method given a high enough value of \code{repcnt}, its use quickly becomes computationally prohibitive.
+"Sampling" uses random sampling to approximate the true distribution and uses it to calculate the p-values for over (and under) representation of categories. In practice, its use quickly becomes computationally prohibitive because \code{repcnt} would need to be set very high for most applications.
 
 CAUTION:  "Hypergeometric" should NEVER be used for producing results for biological interpretation.  If there is genuinly no bias in power to detect DE in your experiment, the PWF will reflect this and the other methods will produce accuracte results.
 
