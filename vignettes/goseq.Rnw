@@ -29,7 +29,7 @@ Gordon K.\ Smyth
 Alicia Oshlack}
 % Please increment date when working on this document, so that
 % date shows genuine change date, not merely date of compile.
-\date{28 May 2015}
+\date{28 March 2016}
 \maketitle
 
 \section{Introduction}
@@ -53,7 +53,7 @@ In order to perform a GO analysis of your RNA-seq data, \texttt{goseq} only requ
 
 If the organism, gene identifier or category test is currently not natively supported by \texttt{goseq}, it will also be necessary to supply additional information regarding the genes length and/or the association between categories and genes.
 \np
-A combination of bioconductor R packages such as \texttt{GenomicFeatures} and \texttt{Rsamtools} allow for the summarization of mapped reads into a table of counts, such as reads per gene.  From there, several packages exist for performing differential expression analysis on summarized data (eg. \texttt{edgeR}~\citep{Robinson07, Robinson08, Robinson10}).  \texttt{goseq} will work with any method for determining differential expression and as such differential expression analysis is outside the scope of this document, but in order to facilitate ease of use, we will make use of the \texttt{edgeR} package to calculate differentially expressed (DE) genes in all the case studies in this document.
+Bioconductor R packages such as \texttt{Rsubread} allow for the summarization of mapped reads into a table of counts, such as reads per gene.  From there, several packages exist for performing differential expression analysis on summarized data (eg. \texttt{edgeR}~\citep{Robinson07, Robinson08, Robinson10}).  \texttt{goseq} will work with any method for determining differential expression and as such differential expression analysis is outside the scope of this document, but in order to facilitate ease of use, we will make use of the \texttt{edgeR} package to calculate differentially expressed (DE) genes in all the case studies in this document.
 
 \section{Reading data}
 
@@ -81,15 +81,11 @@ Having established a null distribution, each GO category is then tested for over
 
 \texttt{goseq} needs to know the length of each gene, as well as what GO categories (or other categories of interest) each gene is associated with. \texttt{goseq} relies on the UCSC genome browser to provide the length information for each gene.  However, because the process of fetching the length of every transcript is slow and bandwidth intensive, \texttt{goseq} relies on an offline copy of this information stored in the data package \texttt{geneLenDataBase}.  To see which genome/gene identifier combinations are in the local database, simply run:
 <<supported_genomes,eval=FALSE>>=
-supportedGenomes()
+supportedOrganisms()
 @
-or
-<<supported_geneids,eval=FALSE>>=
-supportedGeneIDs()
-@
-The rightmost column in the output of both these commands lists the identifiers (in the case of supportedGenomes) or genomes (in the case of supportedGeneIDs) for which length data exists in the local database.  If your genome/ID combination is not in the local database, it will be downloaded from the UCSC genome browser.  If your genome/ID combination is not in the UCSC database, you will have to manually specify the gene lengths.
+The leftmost columns in the output of this command list the genomes and gene identifiers respectively. If length data exists in the local database it is indicated in the second last column. If your genome/ID combination is not in the local database, it may be downloaded from the UCSC genome browser or taken from a \texttt{TxDb} annotation package (if installed). If your genome/ID combination is not found in any database, you will have to manually specify the gene lengths. We encourage all users to manually specify their gene lengths if provided by upstream summarization programs. e.g. \texttt{featureCounts}, as these lengths will be more accurate.
 \np
-In order to link GO categories to genes, \texttt{goseq} uses the organism packages from Bioconductor.  These packages are named org.<Genome>.<ID>.db, where <Genome> is a short string identifying the genome and <ID> is a short string identifying the gene identifier.  Currently, \texttt{goseq} will automatically retrieve the mapping between GO categories and genes from the relevant package (as long as it is installed) for commonly used genome/ID combinations.  If GO mappings are not automatically available for your genome/ID combination, you will have to manually specify the relationship between genes and categories.  Although the Genome/ID naming conventions used by the organism packages differ from the UCSC, \texttt{goseq} is able to convert between the two, so the user need only ever specify the UCSC genome/ID in most cases.
+In order to link GO categories to genes, \texttt{goseq} uses the organism packages from Bioconductor.  These packages are named org.<Genome>.<ID>.db, where <Genome> is a short string identifying the genome and <ID> is a short string identifying the gene identifier.  Currently, \texttt{goseq} will automatically retrieve the mapping between GO categories and genes from the relevant package (as long as it is installed) for commonly used genome/ID combinations.  If GO mappings are not automatically available for your genome/ID combination, you will have to manually specify the relationship between genes and categories.  Although the Genome/ID naming conventions used by the organism packages differ from the UCSC, \texttt{goseq} is able to convert between the two, so the user need only ever specify the UCSC genome/ID in most cases. The final column indicates whether the Genome/ID combination is supported for GO categories.
 
 \section{Non-native Gene Identifier or category test}
 

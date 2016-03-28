@@ -90,18 +90,18 @@ getlength=function(genes,genome,id){
 		ends=strsplit(as.character(transTable$exonEnd),",")
 		exons=mapply(data.frame, starts, ends, SIMPLIFY=FALSE)
 		get_length<-function(x){ 
-		   sum(as.integer(as.character(x[,2]))-as.integer(as.character(x[,1])))  
+		   sum(as.integer(as.character(x[,2]))-as.integer(as.character(x[,1])) + 1 )  
                 }
 		lengths=sapply(exons,get_length)
 
 		# now we need to get the correct list of gene names.
-		names1=as.character(transTable$name)
-		gene_names=names1
-		if(!any(toupper(genes)%in%toupper(names1))){   
+		names2=as.character(transTable$name2)
+		gene_names=names2
+		if(!any(toupper(genes)%in%toupper(names2))){
 		   #check which column has the gene names
-		   names2=as.character(transTable$name2)    
-		   if(any(toupper(genes)%in%toupper(names2))){
-			gene_names=names2
+		   names1=as.character(transTable$name1)   
+		   if(any(toupper(genes)%in%toupper(names1))){
+			gene_names=names1
 		   }
 		}
 		data<-split(lengths,gene_names)

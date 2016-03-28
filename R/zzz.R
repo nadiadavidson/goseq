@@ -15,7 +15,7 @@ names(.ORG_PACKAGES)=c("anoGam","Arabidopsis","bosTau","ce","canFam","dm","danRe
 
 #These are the only formats supported by getgo at the moment, the purpose is to convert the USCC gene 
 #ID formats, to the shorthand used by the bioconductor organism packages, .e.g. "refGene"->"ENSEMBL"
-.ID_MAP=c("eg","REFSEQ","ENSEMBL","SYMBOL","sgd","plasmo","tair")
+.ID_MAP=c("eg","eg","ENSEMBL","SYMBOL","sgd","plasmo","tair")
 names(.ID_MAP)=c("knownGene","refGene","ensGene","geneSymbol","sgd","plasmo","tair")
 
 #Below are the exceptions to the function name for gene to go term mappings
