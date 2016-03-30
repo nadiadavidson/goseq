@@ -6,7 +6,7 @@
 Supported Organisms
 }
 \description{
-Lists which genomes and gene ids are supported for gene lengths and for GO ontology
+Lists which genomes and gene ids are supported for gene lengths and for gene ontology
 }
 \usage{
 supportedOrganisms()
@@ -18,7 +18,7 @@ are automatically supported by goseq. The first to third columns list the genome
 respectively. The fourth column indicates whether this combination of genome and id are available in the geneLengthDataBase.
 If a particular combination is absent, goseq may still automatically fetch the gene lengths from either a TxDB annotation 
 package (must be installed) or download the data from UCSC. For example gene lengths for \code{hg38} are not supported in 
-\code{geneLengthDataBase} but may be fetched by their other means. However, this is not always the case.
+\code{geneLengthDataBase} but may be fetched by these other means. However, this is not always the case.
 The final column indicates if GO terms will be automatically fetched for the geneome and id combination. 
 Goseq relies on an \code{org} annotation package (e.g. \code{org.Hs.eg.db}) existing for 
 the organism. In general, if either the lengths or GO terms are not supported, the user must enter this information manually.

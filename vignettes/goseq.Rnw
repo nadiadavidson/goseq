@@ -20,7 +20,7 @@
 \title{\texttt{goseq}: Gene Ontology testing for RNA-seq datasets}
 \author{Matthew D. Young
 \and
-Nadia Davidson \\ \texttt{nadia.davidson@mcri.edu.au}
+Nadia Davidson % \\ \texttt{nadia.davidson@mcri.edu.au}
 \and
 Matthew J. Wakefield
 \and
@@ -29,7 +29,7 @@ Gordon K.\ Smyth
 Alicia Oshlack}
 % Please increment date when working on this document, so that
 % date shows genuine change date, not merely date of compile.
-\date{28 March 2016}
+\date{30 March 2016}
 \maketitle
 
 \section{Introduction}
@@ -166,19 +166,19 @@ table(genes)
 
 \subsection{Determining Genome and Gene ID}
 
-In order to allow for automatic data retrieval, the user has to tell \texttt{goseq} what genome and gene ID format were used to summarize the data.  In our case we will use the GRCh37 build of the human genome, we check what code this corresponds to by running:
+In order to allow for automatic data retrieval, the user has to tell \texttt{goseq} what genome and gene ID format were used to summarize the data.  In our case we will use the hg19 build of the human genome, we check what code this corresponds to by running:
 
-<<head_genomes,eval=TRUE>>=
-head(supportedGenomes())[,1:4]
+<<head_organisms,eval=TRUE>>=
+head(supportedOrganisms())
 @
 
-Which lists the genome codes in the far left column, headed ``db''.  As we are using GRCh37, we see that we should use ``hg19".  We also know that we used ENSEMBL Gene ID to summarize our read data, we check what code this corresponds to by running:
+Which lists the genome codes in the far left column, headed ``Genome''.  As we are using ``hg19".  We also know that we used ENSEMBL Gene ID to summarize our read data, we check what code this corresponds to by running:
 
 <<head_geneids>>=
-head(supportedGeneIDs(),n=12)[,1:4]
+supportedOrganisms()[supportedOrganisms()$Genome=="hg19",]
 @
 
-Note that the head command, and first four columns, is only used here to save on space in this guide.  Again, the gene ID codes are listed in the far left ``db'' column.  We find that our gene ID code is ``ensGene".  We will use these strings whenever we are asked for a genome or id.
+The gene ID codes are listed in the column second from left, titled ``Id''.  We find that our gene ID code is ``ensGene".  We will use these strings whenever we are asked for a genome or id. If the gene ID is missing for your Genome (for example this is the case for hg38), then the genome is not supported in the geneLengthDatabase. Gene lengths will either be automatically fetched from TxDB, UCSC or you will need to provide them manually. Supported Gene IDs to automatically fetch GO terms should usually either be Entrez (``knownGene"), Ensembl (``ensGene") or gene symbols (``geneSymbol").
 
 \subsection{GO analysis}
 
