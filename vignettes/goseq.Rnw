@@ -172,7 +172,7 @@ In order to allow for automatic data retrieval, the user has to tell \texttt{gos
 head(supportedOrganisms())
 @
 
-Which lists the genome codes in the far left column, headed ``Genome''.  As we are using ``hg19".  We also know that we used ENSEMBL Gene ID to summarize our read data, we check what code this corresponds to by running:
+Which lists the genome codes in the far left column, headed ``Genome''.  As we are using ``hg19" and  we also know that we used ENSEMBL Gene ID to summarize our read data, we check what code this corresponds to by running:
 
 <<head_geneids>>=
 supportedOrganisms()[supportedOrganisms()$Genome=="hg19",]
