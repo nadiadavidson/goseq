@@ -2,7 +2,7 @@
 #Description: Lists which genomes and gene IDs are supported by goseq (length and GO terms)
 #Notes:
 #Author: Nadia Davidson
-#Date Modified: 2016/03/20
+#Date Modified: 2016/10/04
 
 supportedOrganisms=function(){
    require("rtracklayer")
@@ -14,11 +14,11 @@ supportedOrganisms=function(){
    #"refGene" which actually correspond to an Entrez gene ID in geneLenDataBase
    uniqueIDs=c("knownGene","vegaGene","ensGene","geneSymbol")
 
-   geneIDs=geneIDs[geneIDs$db %in% uniqueIDs,]
+   geneIDs=geneIDs[geneIDs$tablename %in% uniqueIDs,]
    
    #extract the corresponding genome IDs and rearrange
    genomes=strsplit(geneIDs$AvailableGenomes,",")
-   id=rep(geneIDs$db,sapply(genomes,length))
+   id=rep(geneIDs$tablename,sapply(genomes,length))
    description=(rep(geneIDs$GeneID,sapply(genomes,length)))
    length_supported=rep(TRUE,length(id))
    genomes=unlist(genomes)
