@@ -223,7 +223,7 @@ head(GO.samp)
 You will notice that this takes far longer than the Wallenius approximation.  Plotting the p-values against one another, we see that there is little difference between the two methods. However, the accuracy of the sampling method is limited by the number of samples generated, \texttt{repcnt}, such that very low p-values will not be correctly calculated. Significantly enriched GO terms may then be missed after correcting for multiple testing.
 
 <<plot_wal_v_samp,fig=TRUE>>=
-plot(log10(GO.wall[,2]), log10(GO.samp[match(GO.samp[,1],GO.wall[,1]),2]), 
+plot(log10(GO.wall[,2]), log10(GO.samp[match(GO.wall[,1],GO.samp[,1]),2]), 
      xlab="log10(Wallenius p-values)",ylab="log10(Sampling p-values)", 
      xlim=c(-3,0))
 abline(0,1,col=3,lty=2)
@@ -243,7 +243,7 @@ head(GO.nobias)
 Ignoring length bias gives very different results from a length bias corrected analysis.
 
 <<plot_wal_v_hyper,fig=TRUE>>=
-plot(log10(GO.wall[,2]), log10(GO.nobias[match(GO.nobias[,1],GO.wall[,1]),2]), 
+plot(log10(GO.wall[,2]), log10(GO.nobias[match(GO.wall[,1],GO.nobias[,1]),2]), 
      xlab="log10(Wallenius p-values)", ylab="log10(Hypergeometric p-values)", 
      xlim=c(-3,0), ylim=c(-3,0))
 abline(0,1,col=3,lty=2)
