@@ -46,7 +46,7 @@ getlength=function(genes,genome,id){
 	   	}
 	   }
 	   if(length(txdbPack)>0){
-	      message("Found the annotaion package, ",txdbPack)
+	      message("Found the annotation package, ",txdbPack)
 	      message("Trying to get the gene lengths from it.")
 	      library(txdbPack,character.only=TRUE)
 	      txdb<-get(txdbPack)
