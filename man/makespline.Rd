@@ -30,7 +30,7 @@ The spline cannot drop below this value.
 }
 }
 \details{
-This uses the \code{pcls} function from the \pkg{mgcv} package to produce the fit.  The montonicity constraint is enforced using \code{mono.con} from the same package. The \code{lower_bound} argument is only used on the rare occasions when the fitting function becomes negative or arbitrarily close to zero.  If this does occur \code{lower_bound} is added everywhere to ensure that no one length is given essentially infinite weighting.
+This uses the \code{pcls} function from the \pkg{mgcv} package to produce the fit.  The monotonicity constraint is enforced using \code{mono.con} from the same package. The \code{lower_bound} argument is only used on the rare occasions when the fitting function becomes negative or arbitrarily close to zero.  If this does occur \code{lower_bound} is added everywhere to ensure that no one length is given essentially infinite weighting.
 }
 \value{
 Returns a vector of values containing the value of the fit at each point \code{newX}.

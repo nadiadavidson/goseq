@@ -31,11 +31,11 @@ Plot the PWF or not?  Calls \code{\link{plotPWF}} with default values if \code{T
 }
 }
 \details{
-It is essential that the entire analysis pipeline, from summarizing raw reads through to using \code{goseq} be done in just one gene identifier format.  If your data is in a different format you will need to obtain the gene lengths and supply them to the \code{nullp} function using the \code{bias.data} arguement.  Converting to a supported format from another format should be avoided whenever possible as this will almost always result in data loss.
+It is essential that the entire analysis pipeline, from summarizing raw reads through to using \code{goseq} be done in just one gene identifier format.  If your data is in a different format you will need to obtain the gene lengths and supply them to the \code{nullp} function using the \code{bias.data} argument.  Converting to a supported format from another format should be avoided whenever possible as this will almost always result in data loss.
 
 \code{NA}s are allowed in the bias.data vector if you do not have information about a certain gene.  Setting a gene to \code{NA} is preferable to removing it from the analysis.
 
-If \code{bias.data} is left as \code{NULL}, \code{nullp} attempts to use \code{\link{getlength}} to fetch GO catgeory to gene identifier mappings.
+If \code{bias.data} is left as \code{NULL}, \code{nullp} attempts to use \code{\link{getlength}} to fetch GO category to gene identifier mappings.
 
 It is recommended you review the fit produced by the \code{nullp} function before proceeding by leaving \code{plot.fit} as \code{TRUE}.
 }

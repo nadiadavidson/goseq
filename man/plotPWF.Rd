@@ -9,7 +9,10 @@ Plot the Probability Weighting Function
 Plots the Probability Weighting Function created by \code{\link{nullp}} by binning together genes.
 }
 \usage{
-plotPWF(pwf,binsize="auto",pwf_col=3,pwf_lwd=2,xlab="Biased Data in <binsize> gene bins.",ylab="Proportion DE",...)
+plotPWF(pwf, binsize="auto", 
+        pwf_col=3, pwf_lwd=2,
+        xlab="Biased Data in <binsize> gene bins.", ylab="Proportion DE",
+        ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -36,7 +39,7 @@ Extra arguments that are passed to plot.
 }
 }
 \details{
-This function is almost always called using the output from the \code{\link{nullp}} function.  However, it can be used to visualize the length (or any other type of quantifyable) bias in ability to detect DE in a data set.  The \code{pwf} arguement needs to be a data frame with 3 columns each containing numeric entries (although NAs are permitted in the bias.data and pwf columns), which must be named "DEgenes", "bias.data" and "pwf", although they can appear in any order.  The row names are taken to be the gene names. The DEgenes column should be 0s or 1s where 1 represents a DE gene, 0 a gene which is not DE.  The bias.data column is a quantification of the quantity for which there is a bias in detecting DE for the associated gene, this is usually gene length or the number of counts associated with a gene.  Finally, the pwf column gives the probability weighting to be applied for a given gene.
+This function is almost always called using the output from the \code{\link{nullp}} function.  However, it can be used to visualize the length (or any other type of quantifiable) bias in ability to detect DE in a data set.  The \code{pwf} argument needs to be a data frame with 3 columns each containing numeric entries (although NAs are permitted in the bias.data and pwf columns), which must be named "DEgenes", "bias.data" and "pwf", although they can appear in any order.  The row names are taken to be the gene names. The DEgenes column should be 0s or 1s where 1 represents a DE gene, 0 a gene which is not DE.  The bias.data column is a quantification of the quantity for which there is a bias in detecting DE for the associated gene, this is usually gene length or the number of counts associated with a gene.  Finally, the pwf column gives the probability weighting to be applied for a given gene.
 }
 \value{
 Nothing is returned.
