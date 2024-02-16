@@ -5,7 +5,7 @@
 #Date Modified: 2016/10/04
 
 supportedOrganisms=function(){
-   require("rtracklayer")
+   requireNamespace("rtracklayer")
 
    #Start by getting the geneLenDataBase supported genomes and geneIDs
    geneIDs=supportedGeneIDs()

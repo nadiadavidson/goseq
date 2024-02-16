@@ -67,8 +67,8 @@ getlength=function(genes,genome,id){
 	         message("A TxDb annotation package exists for ",genome,". Consider installing it to get the gene lengths.",sep="")
 	      }
 	      #If it's not in geneLenDataBase, try to load the data from UCSC using rtracklayer
-	      if(!require("rtracklayer")){
-		  stop("Can't load the rtracklayer library. Is it installed?...")
+	      if(!requireNamespace("rtracklayer")){
+		      stop("Can't load the rtracklayer library. Is it installed?...")
 	      }
 	      message("Trying to download from UCSC. ",
 			 "This might take a couple of minutes. ")
