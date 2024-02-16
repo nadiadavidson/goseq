@@ -48,7 +48,11 @@ Matthew D. Young \email{myoung@wehi.edu.au}
 \code{\link{supportedGenomes}}, \code{\link{supportedGeneIDs}}, \code{\link{nullp}}, \pkg{geneLenDataBase}
 }
 \examples{
-genes <- c("ENSG00000124208", "ENSG00000182463", "ENSG00000124201", "ENSG00000124205", "ENSG00000124207")
+genes <- c("ENSG00000124208", 
+           "ENSG00000182463", 
+           "ENSG00000124201", 
+           "ENSG00000124205", 
+           "ENSG00000124207")
 getlength(genes,'hg19','ensGene')
 }
 %% Add one or more standard keywords, see file 'KEYWORDS' in the

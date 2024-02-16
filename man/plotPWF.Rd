@@ -9,7 +9,10 @@ Plot the Probability Weighting Function
 Plots the Probability Weighting Function created by \code{\link{nullp}} by binning together genes.
 }
 \usage{
-plotPWF(pwf,binsize="auto",pwf_col=3,pwf_lwd=2,xlab="Biased Data in <binsize> gene bins.",ylab="Proportion DE",...)
+plotPWF(pwf, binsize="auto", 
+        pwf_col=3, pwf_lwd=2,
+        xlab="Biased Data in <binsize> gene bins.", ylab="Proportion DE",
+        ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
