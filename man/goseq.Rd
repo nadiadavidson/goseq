@@ -37,7 +37,7 @@ The method to use to calculate the unbiased category enrichment scores.  Valid o
 Number of random samples to be calculated when random sampling is used.  Ignored unless \code{method="Sampling"}.
 }
   \item{use_genes_without_cat}{
-A boolean to indicate whether genes without a categorie should still be used. For example, a large number of gene may have no
+A boolean to indicate whether genes without a category should still be used. For example, a large number of gene may have no
 GO term annotated. If this option is set to FALSE, those genes will be ignored in the calculation of p-values (default 
 behaviour). If this option is set to TRUE, then these genes will count towards the total number of genes outside the
 category being tested (default behaviour prior to version 1.15.2).
@@ -46,15 +46,15 @@ category being tested (default behaviour prior to version 1.15.2).
 \details{
 The \code{pwf} argument is almost always the output of the function \code{\link{nullp}}.  This is a data frame with 3 columns, named "DEgenes", "bias.data" and "pwf" with the rownames set to the gene names.  Each row corresponds to a gene with the DEgenes column specifying if the gene is DE (1 for DE, 0 for not DE), the bias.data column giving the numeric value of the DE bias being accounted for (usually the gene length or number of counts) and the pwf column giving the genes value on the probability weighting function.
 
-\code{goseq} obtains length data from UCSC and GO mappings from the organim packages (see \code{link{getgo}} and \code{\link{getlength}} for details).  If your data is in an unsupported format you will need to obtain the GO category mapping and supply them to the \code{goseq} function using the \code{gene2cat} arguement. 
+\code{goseq} obtains length data from UCSC and GO mappings from the organism packages (see \code{link{getgo}} and \code{\link{getlength}} for details).  If your data is in an unsupported format you will need to obtain the GO category mapping and supply them to the \code{goseq} function using the \code{gene2cat} argument. 
 
-To use your own gene to category mapping with \code{goseq}, use the \code{gene2cat} arguement.  This arguement takes a data.frame, with one column containing gene IDs and the other containing the associated categories.  As the mapping from gene <-> category is in general many to many there will be multiple rows containing the same gene identifier.  Alternatively, \code{gene2cat} can take a list, where the names are the genes and the entries are the GO categories associated with the genes.  This is the format produced by the \code{\link{getgo}} function and is more space efficient than the data.frame representation.
+To use your own gene to category mapping with \code{goseq}, use the \code{gene2cat} argument.  This argument takes a data.frame, with one column containing gene IDs and the other containing the associated categories.  As the mapping from gene <-> category is in general many to many there will be multiple rows containing the same gene identifier.  Alternatively, \code{gene2cat} can take a list, where the names are the genes and the entries are the GO categories associated with the genes.  This is the format produced by the \code{\link{getgo}} function and is more space efficient than the data.frame representation.
 
-If \code{gene2cat} is left as \code{NULL}, \code{goseq} attempts to use \code{\link{getgo}} to fetch GO catgeory to gene identifier mappings.
+If \code{gene2cat} is left as \code{NULL}, \code{goseq} attempts to use \code{\link{getgo}} to fetch GO category to gene identifier mappings.
 
-The PWF is usually calculated using the \code{\link{nullp}} function to correct for length bias. However, \code{goseq} will work with any vector of weights.  Any bias can be accounted for so long as a weight for each gene is supplied using this arguement.  \code{NA}s are allowed in the "pwf" and "bias.data" columns of the PWF data frame (these usually occur as a result of missing length data for some genes).  Any entry which is \code{NA} is set to the weighting of the median gene.
+The PWF is usually calculated using the \code{\link{nullp}} function to correct for length bias. However, \code{goseq} will work with any vector of weights.  Any bias can be accounted for so long as a weight for each gene is supplied using this argument.  \code{NA}s are allowed in the "pwf" and "bias.data" columns of the PWF data frame (these usually occur as a result of missing length data for some genes).  Any entry which is \code{NA} is set to the weighting of the median gene.
 
-Valid options for the \code{test.cats} arguement are any combination of "GO:CC", "GO:BP", "GO:MF" & "KEGG".  The three GO terms refer to the Cellular Component, Biological Process and Molecular Function respectively.  "KEGG" refers to KEGG pathways.
+Valid options for the \code{test.cats} argument are any combination of "GO:CC", "GO:BP", "GO:MF" & "KEGG".  The three GO terms refer to the Cellular Component, Biological Process and Molecular Function respectively.  "KEGG" refers to KEGG pathways.
 
 The three methods, "Wallenius", "Sampling" & "Hypergeometric", calculate the p-values as follows.  
 
@@ -62,7 +62,7 @@ The three methods, "Wallenius", "Sampling" & "Hypergeometric", calculate the p-v
 
 "Sampling" uses random sampling to approximate the true distribution and uses it to calculate the p-values for over (and under) representation of categories. In practice, its use quickly becomes computationally prohibitive because \code{repcnt} would need to be set very high for most applications.
 
-CAUTION:  "Hypergeometric" should NEVER be used for producing results for biological interpretation.  If there is genuinly no bias in power to detect DE in your experiment, the PWF will reflect this and the other methods will produce accuracte results.
+CAUTION:  "Hypergeometric" should NEVER be used for producing results for biological interpretation.  If there is genuinely no bias in power to detect DE in your experiment, the PWF will reflect this and the other methods will produce accurate results.
 
 "Hypergeometric" assumes there is no bias in power to detect differential expression at all and calculates the p-values using a standard hypergeometric distribution.  Useful if you wish to test the effect of selection bias on your results.
 }

@@ -87,7 +87,7 @@ goseq=function(pwf,genome,id,gene2cat=NULL,test.cats=c("GO:CC","GO:BP","GO:MF"),
 
 	nafrac=(sum(is.na(pwf$pwf))/nrow(pwf))*100
 	if(nafrac>50){
-		warning(paste("Missing length data for ",round(nafrac),"% of genes.  Accuarcy of GO test will be reduced.",sep=''))
+		warning(paste("Missing length data for ",round(nafrac),"% of genes.  Accuracy of GO test will be reduced.",sep=''))
 	}
 	#Give the genes with unknown length the weight used by the median gene (not the median weighting!)
 	pwf$pwf[is.na(pwf$pwf)]=pwf$pwf[match(sort(pwf$bias.data[!is.na(pwf$bias.data)])[ceiling(sum(!is.na(pwf$bias.data))/2)],pwf$bias.data)]
